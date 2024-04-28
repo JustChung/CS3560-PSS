@@ -1,35 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useState } from 'react';
+import PSSModel from './PSSModel';
+import PSSController from './PSSController';
+import MainView from './MainView';
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [pssController, setPSSController] = useState<PSSController | null>(null);
+    
+    useEffect(() => {
+        const pssModel = new PSSModel('example@example.com');
+        const controller = new PSSController(pssModel);
+        controller.addTask('Task 1', 'Recurring', 10.5, 20220427, 1.5);
+        const task = controller.viewTask('Task 1');
+        console.log(task);
+        setPSSController(controller);
+    }, []);
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <div className="App">
+            {pssController && <MainView controller={pssController} />}
+        </div>
+    );
 }
 
-export default App
+export default App;
