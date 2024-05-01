@@ -9,9 +9,6 @@ function App() {
   useEffect(() => {
     const pssModel = new PSSModel("example@example.com");
     const controller = new PSSController(pssModel);
-    controller.addTask("Task 1", "Recurring", 10.5, 20220427, 1.5);
-    const task = controller.viewTask("Task 1");
-    console.log(task);
     setPSSController(controller);
   }, []);
 
