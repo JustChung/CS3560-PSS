@@ -1,4 +1,4 @@
-import { dayOfTheWeek } from "../utils";
+import { dayOfTheWeek, getMonth } from "../utils";
 import { AntiTask, AntiTaskType } from "./AntiTask";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
@@ -21,20 +21,23 @@ export default class PSSModel {
     duration: number,
     taskType: TransientTaskType | AntiTaskType | RecurringTaskType,
     endDate?: number,
-    frequency?: number
+    frequency?: Frequency
   ): void {
-    switch (type) {
+    switch (taskClass) {
       case "anti":
-        this.tasks.push(new AntiTask(name, type, startTime, startDate, duration));
+        this.tasks.push(new AntiTask(name, taskType as AntiTaskType, startTime, startDate, duration));
         break;
       case "transient":
-        this.tasks.push(new TransientTask(name, type, startTime, startDate, duration));
+        this.tasks.push(new TransientTask(name, taskType as TransientTaskType, startTime, startDate, duration));
         break;
       case "recurring":
-        this.tasks.push(new RecurringTask(name, type, startDate, duration, endDate, frequency));
+        this.tasks.push(
+          new RecurringTask(name, taskType as RecurringTaskType, startTime, startDate, duration, endDate!, frequency!)
+        );
+        break;
+      default:
+        throw new Error("Impossible to reach line, possible unhandled case");
     }
-    const task = new Task(name, type, startTime, startDate, duration);
-    this.tasks.push(task);
   }
 
   getTask(name: string): Task | undefined {
@@ -55,7 +58,11 @@ export default class PSSModel {
     taskClass: "transient" | "anti" | "recurring",
     startDate: number,
     startTime: number,
-    duration: number
+    duration: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _endDate?: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _frequency?: number
   ): boolean {
     switch (taskClass) {
       case "transient":
@@ -101,13 +108,13 @@ export default class PSSModel {
   getSchedule(startDate: number, type: "day" | "week" | "month"): Task[] {
     let endDate: number;
     switch (type) {
-      case Frequency.Daily:
+      case "day":
         endDate = startDate + 1;
         break;
-      case Frequency.Weekly:
+      case "week":
         endDate = startDate + 7;
         break;
-      case Frequency.Monthly:
+      case "month":
         endDate = startDate + 31;
         break;
       default:
@@ -121,7 +128,9 @@ export default class PSSModel {
 
   writePartialScheduleToFile(fileName: string, startDate: number, type: "day" | "week" | "month"): void {
     // NEED TO IMPLEMENT
-    fileName, startDate, type;
+    fileName;
+    startDate;
+    type;
   }
 
   readScheduleFromFile(fileName: string): void {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PSSModel from "./classes/PSSModel";
+import PSSModel from "./classes/PSSModel.ts";
 import PSSController from "./classes/PSSController";
 import MainView from "./views/MainView";
 

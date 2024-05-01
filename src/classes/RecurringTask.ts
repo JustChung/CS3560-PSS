@@ -15,24 +15,21 @@ export enum Frequency {
   Monthly = "Monthly",
 }
 
-class RecurringTask extends Task<RecurringTaskType> {
+export class RecurringTask extends Task<RecurringTaskType> {
   endDate: number;
-  frequency: number;
+  frequency: Frequency;
 
   constructor(
     name: string,
+    taskType: RecurringTaskType,
     startTime: number,
     startDate: number,
     duration: number,
     endDate: number,
-    frequency: Frequency,
-    taskType: RecurringTaskType
+    frequency: Frequency
   ) {
-    super(name, "Recurring", startTime, startDate, duration);
+    super(name, taskType, startTime, startDate, duration);
     this.endDate = endDate;
     this.frequency = frequency;
-    this.taskType = taskType;
   }
 }
-
-export { RecurringTask, RecurringTaskType };
