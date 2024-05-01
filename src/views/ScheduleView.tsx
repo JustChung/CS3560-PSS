@@ -1,10 +1,11 @@
 import React from "react";
-import PSSController from "../types/PSSController";
+import PSSController from "../classes/PSSController";
 
 interface ScheduleViewProps {
   controller: PSSController;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   return (
     <div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import PSSModel from "./types/PSSModel";
-import PSSController from "./types/PSSController";
+import PSSModel from "./classes/PSSModel";
+import PSSController from "./classes/PSSController";
 import MainView from "./views/MainView";
 
 function App() {

@@ -1,6 +1,6 @@
 import Task from "./Task";
 
-enum TaskType {
+export enum RecurringTaskType {
   Class = "Class",
   Study = "Study",
   Sleep = "Sleep",
@@ -9,10 +9,15 @@ enum TaskType {
   Meal = "Meal",
 }
 
-class RecurringTask extends Task {
+export enum Frequency {
+  Daily = "Daily",
+  Weekly = "Weekly",
+  Monthly = "Monthly",
+}
+
+class RecurringTask extends Task<RecurringTaskType> {
   endDate: number;
   frequency: number;
-  taskType: TaskType;
 
   constructor(
     name: string,
@@ -20,8 +25,8 @@ class RecurringTask extends Task {
     startDate: number,
     duration: number,
     endDate: number,
-    frequency: number,
-    taskType: TaskType
+    frequency: Frequency,
+    taskType: RecurringTaskType
   ) {
     super(name, "Recurring", startTime, startDate, duration);
     this.endDate = endDate;
@@ -30,4 +35,4 @@ class RecurringTask extends Task {
   }
 }
 
-export { RecurringTask, TaskType };
+export { RecurringTask, RecurringTaskType };

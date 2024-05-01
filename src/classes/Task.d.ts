@@ -1,11 +1,9 @@
-abstract class Task {
+abstract class Task<T extends string = string> {
   name: string;
-  type: "Recurring" | "Transient" | "Anti";
+  taskType: T;
   startTime: number;
   startDate: number;
   duration: number;
-
-  taskType: string;
 
   constructor(
     name: string,

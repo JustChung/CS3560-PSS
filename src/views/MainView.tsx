@@ -4,7 +4,7 @@ import TaskView from "./TaskView";
 import FindTaskView from "./FindTaskView";
 import CreateTaskView from "./CreateTaskView";
 import WriteReadScheduleView from "./WriteReadScheduleView";
-import PSSController from "../types/PSSController";
+import PSSController from "../classes/PSSController";
 
 interface MainViewProps {
   controller: PSSController;

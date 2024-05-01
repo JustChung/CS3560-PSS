@@ -1,10 +1,11 @@
 import React from "react";
-import PSSController from "../types/PSSController";
+import PSSController from "../classes/PSSController";
 
 interface CreateTaskViewProps {
   controller: PSSController;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
   return (
     <div>

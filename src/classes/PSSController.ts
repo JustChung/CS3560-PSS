@@ -1,9 +1,11 @@
+import { AntiTaskType } from "./AntiTask";
 import PSSModel from "./PSSModel";
+import { RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
+import { TransientTaskType } from "./TransientTask";
 
 export default class PSSController {
   pss: PSSModel;
-  // view: MainView
 
   constructor(pss: PSSModel) {
     this.pss = pss;
@@ -11,14 +13,17 @@ export default class PSSController {
 
   addTask(
     name: string,
-    type: string,
+    taskClass: "transient" | "anti" | "recurring",
     startTime: number,
     startDate: number,
     duration: number,
+    taskType: TransientTaskType | AntiTaskType | RecurringTaskType,
     endDate?: number,
     frequency?: number
   ): void {
-    // NEED TO IMPLEMENT
+    if (this.pss.verifyNoOverlap(taskClass, startDate, startTime, duration)) {
+      this.pss.createTask(name, taskClass, startTime, startDate, duration, taskType, endDate, frequency);
+    }
   }
 
   deleteTask(name: string): void {
