@@ -55,7 +55,7 @@ export default class PSSController {
     this.pss.writePartialScheduleToFile(fileName, startDate, type);
   }
 
-  inputFileToSchedule(fileName: string): void {
+  inputFileToSchedule(fileName: File): void {
     this.pss.readScheduleFromFile(fileName);
   }
 }

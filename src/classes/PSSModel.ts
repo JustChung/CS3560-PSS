@@ -207,8 +207,78 @@ export default class PSSModel {
     type;
   }
 
-  readScheduleFromFile(fileName: string): void {
-    // NEED TO IMPLEMENT
-    fileName;
+  readScheduleFromFile(file: File): void {
+    const fileReader = new FileReader();
+  
+    fileReader.onload = (event) => {
+      if (event.target) {
+        try {
+          const fileData = JSON.parse(event.target.result as string);
+          fileData.forEach((taskData: any) => {
+            console.log(taskData)
+            const {
+              Name, 
+              Type, 
+              StartDate,
+              StartTime,
+              Duration,
+              EndDate,
+              Frequency,
+              Date
+            } = taskData;
+            switch(Type) {
+              case "Class":
+              case "Study":
+              case "Sleep":
+              case "Exercise":
+              case "Work":
+              case "Meal":
+                this.createTask(
+                  Name,
+                  "recurring",
+                  StartTime,
+                  StartDate,
+                  Duration,
+                  Type,
+                  EndDate,
+                  Frequency
+                );
+                break;
+              case "Cancellation":
+                this.createTask(
+                  Name,
+                  "anti",
+                  StartTime,
+                  Date,
+                  Duration,
+                  Type
+                );
+                break;
+              case "Visit":
+              case "Shopping":
+              case "Appointment":
+                this.createTask(
+                  Name,
+                  "transient",
+                  StartTime,
+                  Date,
+                  Duration,
+                  Type
+                );
+                break;
+              default:
+                console.log(`Could not create task ${Name}`);
+                break;
+            }
+          });
+  
+          console.log(`Schedule from file '${file.name}' loaded successfully.`);
+        } catch (error) {
+          console.error(`Error in '${file.name}':`, error);
+        }
+      }
+    };
+  
+    fileReader.readAsText(file);
   }
 }
