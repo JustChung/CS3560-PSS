@@ -20,11 +20,19 @@ export default class PSSController {
     taskType: TransientTaskType | AntiTaskType | RecurringTaskType,
     endDate?: number,
     frequency?: Frequency
-  ): void {
-    if (this.pss.verifyNoOverlap(taskClass, startDate, startTime, duration)) {
-      this.pss.createTask(name, taskClass, startTime, startDate, duration, taskType, endDate, frequency);
+  ): true | string {
+    if (!this.pss.verifyUniqueName(name)) {
+      return `A task with the name "${name}" already exists.`;
     }
-    console.log(this.pss.tasks);
+    const noOverlap = this.pss.verifyNoOverlap(taskClass, startDate, startTime, duration);
+    if (noOverlap === true) {
+      this.pss.createTask(name, taskClass, startTime, startDate, duration, taskType, endDate, frequency);
+      this.pss.printTasks();
+    } else {
+      return noOverlap;
+    }
+
+    return true;
   }
 
   deleteTask(name: string): void {

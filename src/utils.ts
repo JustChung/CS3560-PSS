@@ -25,3 +25,14 @@ export function calcEndTime(startTime: number, duration: number) {
 
   return newHours * 100 + newMinutes;
 }
+
+export function getDateTime(date: number, time: number): string {
+  const day = date % 100;
+  const month = Math.floor(date / 100) % 100;
+  const year = Math.floor(date / 10000);
+
+  const hours = Math.floor(time / 100);
+  const minutes = time % 100;
+
+  return new Date(year, month - 1, day, hours, minutes).toLocaleString();
+}

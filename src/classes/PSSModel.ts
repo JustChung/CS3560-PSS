@@ -1,16 +1,20 @@
-import { calcEndTime, dayOfTheWeek, getDayOfMonth } from "../utils";
+import { calcEndTime, dayOfTheWeek, getDateTime, getDayOfMonth } from "../utils";
 import { AntiTask, AntiTaskType } from "./AntiTask";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
 import { TransientTask, TransientTaskType } from "./TransientTask";
 
 export default class PSSModel {
-  emailAddress: string;
-  tasks: Task[];
+  private emailAddress: string;
+  private tasks: Task[];
 
   constructor(emailAddress: string) {
     this.emailAddress = emailAddress;
     this.tasks = [];
+  }
+
+  printTasks(): void {
+    console.log(this.tasks);
   }
 
   createTask(
@@ -62,17 +66,26 @@ export default class PSSModel {
     duration: number,
     endDate?: number,
     frequency?: Frequency
-  ): boolean {
+  ): true | string {
     switch (taskClass) {
       case "transient":
         // Check for overlapping transient tasks
         for (const transientTask of this.tasks.filter((task): task is TransientTask => task instanceof TransientTask)) {
+          console.log(
+            startTime,
+            calcEndTime(transientTask.startTime, transientTask.duration),
+            transientTask.startTime,
+            calcEndTime(startTime, duration)
+          );
           if (
             transientTask.startDate === startDate &&
             startTime < calcEndTime(transientTask.startTime, transientTask.duration) &&
             transientTask.startTime < calcEndTime(startTime, duration)
           ) {
-            return false;
+            return `New transient task conflicts with existing transient task "${transientTask.name}" on ${getDateTime(
+              transientTask.startDate,
+              transientTask.startTime
+            )}.`;
           }
         }
 
@@ -86,27 +99,33 @@ export default class PSSModel {
             (recurringTask.frequency === Frequency.Monthly &&
               getDayOfMonth(recurringTask.startDate) === getDayOfMonth(startDate))
           ) {
-            // Check if anti-task is within date range and overlapping time
+            // Check if recurring is within date range and overlapping time
             if (
               startDate >= recurringTask.startDate &&
               startDate <= recurringTask.endDate &&
               startTime < calcEndTime(recurringTask.startTime, recurringTask.duration) &&
               recurringTask.startTime < calcEndTime(startTime, duration)
             ) {
-              return false;
+              // Check if there is an anti-task cancelling this recurring task out
+              if (
+                !this.tasks.some(
+                  (task) =>
+                    task instanceof AntiTask &&
+                    task.startDate === startDate &&
+                    task.startTime === recurringTask.startTime
+                )
+              )
+                return `New transient task conflicts with an existing recurring task "${
+                  recurringTask.name
+                }" on ${getDateTime(startDate, recurringTask.startTime)}`;
             }
           }
         }
-
         return true;
       case "anti":
         // Check for existing antitask (we don't need to check duration)
-        if (
-          this.tasks.some(
-            (task) => task instanceof AntiTask && task.startDate === startDate && task.startTime === startTime
-          )
-        ) {
-          return false;
+        for (const antiTask of this.tasks.filter((task): task is AntiTask => task instanceof AntiTask)) {
+          return `New antitask conflicts with an existing anti-task ${antiTask.name}.`;
         }
 
         // Check for valid recurring task
@@ -130,7 +149,10 @@ export default class PSSModel {
             }
           }
         }
-        return false;
+        return `Unable to find recurring task that starts at ${getDateTime(
+          startDate,
+          startTime
+        )} and lasts for ${duration} minutes`;
       case "recurring":
         // Check for conflicting transient task
         for (const transientTask of this.tasks.filter((task): task is TransientTask => task instanceof TransientTask)) {
@@ -145,7 +167,9 @@ export default class PSSModel {
               startTime < calcEndTime(transientTask.startDate, transientTask.duration) &&
               transientTask.startDate < calcEndTime(startDate, duration)
             ) {
-              return false;
+              return `New recurring tasks conflicts with existing transient task "${
+                transientTask.name
+              }" at ${getDateTime(transientTask.startDate, transientTask.startTime)}`;
             }
           }
         }
