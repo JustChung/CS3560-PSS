@@ -71,12 +71,6 @@ export default class PSSModel {
       case "transient":
         // Check for overlapping transient tasks
         for (const transientTask of this.tasks.filter((task): task is TransientTask => task instanceof TransientTask)) {
-          console.log(
-            startTime,
-            calcEndTime(transientTask.startTime, transientTask.duration),
-            transientTask.startTime,
-            calcEndTime(startTime, duration)
-          );
           if (
             transientTask.startDate === startDate &&
             startTime < calcEndTime(transientTask.startTime, transientTask.duration) &&
