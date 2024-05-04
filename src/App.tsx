@@ -7,7 +7,7 @@ function App() {
   const [pssController, setPSSController] = useState<PSSController | null>(null);
 
   useEffect(() => {
-    const pssModel = new PSSModel("example@example.com");
+    const pssModel = new PSSModel("temp@email.com");
     const controller = new PSSController(pssModel);
     setPSSController(controller);
   }, []);

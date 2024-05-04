@@ -24,6 +24,7 @@ export default class PSSController {
     if (this.pss.verifyNoOverlap(taskClass, startDate, startTime, duration)) {
       this.pss.createTask(name, taskClass, startTime, startDate, duration, taskType, endDate, frequency);
     }
+    console.log(this.pss.tasks);
   }
 
   deleteTask(name: string): void {

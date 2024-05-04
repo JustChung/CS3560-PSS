@@ -9,7 +9,7 @@ interface WriteReadScheduleViewProps {
 const WriteReadScheduleView: React.FC<WriteReadScheduleViewProps> = ({ controller }) => {
   return (
     <div>
-      <h2>Schedule View</h2>
+      <h2>WriteReadScheduleView</h2>
     </div>
   );
 };

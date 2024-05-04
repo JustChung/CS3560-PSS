@@ -1,4 +1,4 @@
-import { dayOfTheWeek, getMonth } from "../utils";
+import { calcEndTime, dayOfTheWeek, getDayOfMonth } from "../utils";
 import { AntiTask, AntiTaskType } from "./AntiTask";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
@@ -45,6 +45,7 @@ export default class PSSModel {
   }
 
   deleteTask(name: string): void {
+    // TODO (luciano): I don't think this was implemented properly, .filter doesn't modify the existing array
     this.tasks = this.tasks.filter((task) => task.name !== name);
     // TODO (luciano): when deleting recurring task, delete all corresponding anti-tasks as well
   }
@@ -53,21 +54,51 @@ export default class PSSModel {
     return !this.tasks.some((task) => task.name === name);
   }
 
-  // TODO (luciano): verify it's ok that we're also passing in task type (differs from class diagram)
+  // TODO (luciano): verify it's ok that we're also passing in task class (differs from class diagram)
   verifyNoOverlap(
     taskClass: "transient" | "anti" | "recurring",
     startDate: number,
     startTime: number,
     duration: number,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _endDate?: number,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _frequency?: number
+    endDate?: number,
+    frequency?: Frequency
   ): boolean {
     switch (taskClass) {
       case "transient":
-        // TODO: implement transient task overlap check
-        break;
+        // Check for overlapping transient tasks
+        for (const transientTask of this.tasks.filter((task): task is TransientTask => task instanceof TransientTask)) {
+          if (
+            transientTask.startDate === startDate &&
+            startTime < calcEndTime(transientTask.startTime, transientTask.duration) &&
+            transientTask.startTime < calcEndTime(startTime, duration)
+          ) {
+            return false;
+          }
+        }
+
+        // Check for conflicting recurring tasks
+        for (const recurringTask of this.tasks.filter((task): task is RecurringTask => task instanceof RecurringTask)) {
+          // Check for same day
+          if (
+            recurringTask.frequency === Frequency.Daily ||
+            (recurringTask.frequency === Frequency.Weekly &&
+              dayOfTheWeek(recurringTask.startDate) === dayOfTheWeek(recurringTask.endDate)) ||
+            (recurringTask.frequency === Frequency.Monthly &&
+              getDayOfMonth(recurringTask.startDate) === getDayOfMonth(startDate))
+          ) {
+            // Check if anti-task is within date range and overlapping time
+            if (
+              startDate >= recurringTask.startDate &&
+              startDate <= recurringTask.endDate &&
+              startTime < calcEndTime(recurringTask.startTime, recurringTask.duration) &&
+              recurringTask.startTime < calcEndTime(startTime, duration)
+            ) {
+              return false;
+            }
+          }
+        }
+
+        return true;
       case "anti":
         // Check for existing antitask (we don't need to check duration)
         if (
@@ -82,22 +113,46 @@ export default class PSSModel {
         for (const recurringTask of this.tasks.filter((task): task is RecurringTask => task instanceof RecurringTask)) {
           // Check for same day
           if (
-            (Frequency.Daily && recurringTask.startDate % 100 === startDate % 100) ||
-            (Frequency.Weekly && dayOfTheWeek(recurringTask.startDate) === dayOfTheWeek(recurringTask.endDate)) ||
-            (Frequency.Monthly && getMonth(recurringTask.startDate) === getMonth(startDate))
+            recurringTask.frequency === Frequency.Daily ||
+            (recurringTask.frequency === Frequency.Weekly &&
+              dayOfTheWeek(recurringTask.startDate) === dayOfTheWeek(recurringTask.endDate)) ||
+            (recurringTask.frequency === Frequency.Monthly &&
+              getDayOfMonth(recurringTask.startDate) === getDayOfMonth(startDate))
           ) {
-            // Check for same time
-            if (startTime === recurringTask.startTime && duration === recurringTask.duration) {
+            // Check if anti-task is within date range and correct time
+            if (
+              startDate >= recurringTask.startDate &&
+              startDate <= recurringTask.endDate &&
+              startTime === recurringTask.startTime &&
+              duration === recurringTask.duration
+            ) {
               return true;
             }
           }
         }
         return false;
       case "recurring":
-        //  TODO: implement recurring task overlap check
-        break;
+        // Check for conflicting transient task
+        for (const transientTask of this.tasks.filter((task): task is TransientTask => task instanceof TransientTask)) {
+          // Check for same day
+          if (
+            Frequency.Daily ||
+            (frequency === Frequency.Weekly && dayOfTheWeek(startDate) === dayOfTheWeek(endDate ?? -1)) ||
+            (frequency === Frequency.Monthly && getDayOfMonth(transientTask.startDate) === getDayOfMonth(startDate))
+          ) {
+            // Check for overlapping time
+            if (
+              startTime < calcEndTime(transientTask.startDate, transientTask.duration) &&
+              transientTask.startDate < calcEndTime(startDate, duration)
+            ) {
+              return false;
+            }
+          }
+        }
+
+        // TODO (luciano): Do we care if recurring tasks overlap with other recurring tasks?
+        return true;
     }
-    throw new Error("Impossible to reach line, possible unhandled case");
   }
 
   writeScheduleToFile(fileName: string): void {
@@ -122,6 +177,7 @@ export default class PSSModel {
     }
 
     return this.tasks.filter((task) => {
+      // TODO (luciano) this doesn't work with recurring tasks
       return task.startDate >= startDate && task.startDate < endDate;
     });
   }
