@@ -52,7 +52,7 @@ export class RecurringTask extends Task<RecurringTaskType> {
   private appendRecurringTasks(taskArr: Task<string>[], frequency: number): void {
     for (let startDate = this.startDate+frequency; startDate <= this.endDate; startDate += frequency) {
       startDate = this.validateDate(startDate)
-      let recurringTask = new RecurringTask(this.name, this.taskType as RecurringTaskType, this.startTime, startDate, this.duration, this.endDate!, this.frequency!)
+      const recurringTask = new RecurringTask(this.name, this.taskType as RecurringTaskType, this.startTime, startDate, this.duration, this.endDate!, this.frequency!)
       taskArr.push(recurringTask)
     }
   }
@@ -60,9 +60,9 @@ export class RecurringTask extends Task<RecurringTaskType> {
   // Increments month and year if necessary
   private validateDate(date: number): number {
     let newDate = date
-    let day = getDigit(date, 1)+getDigit(date, 2)*10
-    let month = getDigit(date, 3)+getDigit(date, 4)*10
-    let year = (date - (month*100+day)) / 10**4
+    const day = getDigit(date, 1)+getDigit(date, 2)*10
+    const month = getDigit(date, 3)+getDigit(date, 4)*10
+    const year = (date - (month*100+day)) / 10**4
     if (day > getDaysInMonth(month, year)) {
       newDate += 100
       newDate -= day

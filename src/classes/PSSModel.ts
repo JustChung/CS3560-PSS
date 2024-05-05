@@ -1,4 +1,4 @@
-import { calcEndTime, dayOfTheWeek, getDateTime, getDayOfMonth, getDigit, getDaysInMonth } from "../utils";
+import { calcEndTime, getDateTime, getDigit, getDaysInMonth } from "../utils";
 import { AntiTask, AntiTaskType } from "./AntiTask";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
@@ -28,18 +28,21 @@ export default class PSSModel {
     frequency?: Frequency
   ): void {
     switch (taskClass) {
-      case "anti":
-        let antiTask = new AntiTask(name, taskType as AntiTaskType, startTime, startDate, duration);
+      case "anti": {
+        const antiTask = new AntiTask(name, taskType as AntiTaskType, startTime, startDate, duration);
         antiTask.appendTo(this.tasks)
         break;
-      case "transient":
-        let transientTask = new TransientTask(name, taskType as TransientTaskType, startTime, startDate, duration);
+      }
+      case "transient": {
+        const transientTask = new TransientTask(name, taskType as TransientTaskType, startTime, startDate, duration);
         transientTask.appendTo(this.tasks)
         break;
-      case "recurring":
-        let recurringTask = new RecurringTask(name, taskType as RecurringTaskType, startTime, startDate, duration, endDate!, frequency!);
+      }
+      case "recurring": {
+        const recurringTask = new RecurringTask(name, taskType as RecurringTaskType, startTime, startDate, duration, endDate!, frequency!);
         recurringTask.appendTo(this.tasks)
         break;
+      }
       default:
         throw new Error("Impossible to reach line, possible unhandled case");
     }
@@ -65,8 +68,6 @@ export default class PSSModel {
     startDate: number,
     startTime: number,
     duration: number,
-    endDate?: number,
-    frequency?: Frequency
   ): true | string {
     // Check for overlapping transient tasks
     for (const task of this.tasks) {
@@ -89,10 +90,9 @@ export default class PSSModel {
     if (date >= 100000000) {
       return "Invalid date length. Date format must be YYYYMMDD."
     }
-    let day = getDigit(date, 1)+getDigit(date, 2)*10
-    let month = getDigit(date, 3)+getDigit(date, 4)*10
-    console.log(month)
-    let year = (date - (month*100+day)) / 10**4
+    const day = getDigit(date, 1)+getDigit(date, 2)*10
+    const month = getDigit(date, 3)+getDigit(date, 4)*10
+    const year = (date - (month*100+day)) / 10**4
     if (day > getDaysInMonth(month, year)) {
       return "Invalid day: given day exceeds the number of days in given month"
     }
