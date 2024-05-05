@@ -1,5 +1,5 @@
 import Task from "./Task";
-import {getDigit, getDaysInMonth} from "../utils";
+import { getDigit, getDaysInMonth } from "../utils";
 
 export enum RecurringTaskType {
   Class = "Class",
@@ -35,42 +35,53 @@ export class RecurringTask extends Task<RecurringTaskType> {
   }
 
   override appendTo(taskArr: Task<string>[]): void {
-    taskArr.push(this);
+    console.log(this.frequency);
     switch (this.frequency) {
       case Frequency.Daily:
-        this.appendRecurringTasks(taskArr, 1)
+        this.appendRecurringTasks(taskArr, 1);
         break;
       case Frequency.Weekly:
-        this.appendRecurringTasks(taskArr, 7)
+        this.appendRecurringTasks(taskArr, 7);
         break;
       case Frequency.Monthly:
-        this.appendRecurringTasks(taskArr, 100)
+        this.appendRecurringTasks(taskArr, 100);
         break;
     }
+    console.log("After Appending", taskArr);
   }
 
   private appendRecurringTasks(taskArr: Task<string>[], frequency: number): void {
-    for (let startDate = this.startDate+frequency; startDate <= this.endDate; startDate += frequency) {
-      startDate = this.validateDate(startDate)
-      const recurringTask = new RecurringTask(this.name, this.taskType as RecurringTaskType, this.startTime, startDate, this.duration, this.endDate!, this.frequency!)
-      taskArr.push(recurringTask)
+    console.log(this.startDate, this.endDate);
+    for (let startDate = this.startDate; startDate <= this.endDate; startDate += frequency) {
+      startDate = this.validateDate(startDate);
+      const recurringTask = new RecurringTask(
+        this.name,
+        this.taskType as RecurringTaskType,
+        this.startTime,
+        startDate,
+        this.duration,
+        this.endDate!,
+        this.frequency!
+      );
+      console.log("Pushing", recurringTask);
+      taskArr.push(recurringTask);
     }
   }
 
   // Increments month and year if necessary
   private validateDate(date: number): number {
-    let newDate = date
-    const day = getDigit(date, 1)+getDigit(date, 2)*10
-    const month = getDigit(date, 3)+getDigit(date, 4)*10
-    const year = (date - (month*100+day)) / 10**4
+    let newDate = date;
+    const day = getDigit(date, 1) + getDigit(date, 2) * 10;
+    const month = getDigit(date, 3) + getDigit(date, 4) * 10;
+    const year = (date - (month * 100 + day)) / 10 ** 4;
     if (day > getDaysInMonth(month, year)) {
-      newDate += 100
-      newDate -= day
+      newDate += 100;
+      newDate -= day;
     }
     if (month > 12) {
-      newDate += 10000 
-      newDate -= month
+      newDate += 10000;
+      newDate -= month;
     }
-    return newDate
+    return newDate;
   }
 }
