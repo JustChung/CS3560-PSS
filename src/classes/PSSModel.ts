@@ -214,7 +214,16 @@ export default class PSSModel {
       if (event.target) {
         try {
           const fileData = JSON.parse(event.target.result as string);
-          fileData.forEach((taskData: any) => {
+          fileData.forEach((taskData: {
+            Name: string;
+            Type: TransientTaskType | RecurringTaskType | AntiTaskType;
+            StartDate: number;
+            StartTime: number;
+            Duration: number;
+            EndDate?: number;
+            Frequency?: Frequency;
+            Date: number;
+          }) => {
             console.log(taskData)
             const {
               Name, 
