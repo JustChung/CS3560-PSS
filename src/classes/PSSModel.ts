@@ -145,7 +145,6 @@ export default class PSSModel {
         }
 
         // Check for valid recurring task
-        console.log(this.tasks.filter((task): task is RecurringTask => task instanceof RecurringTask));
         for (const recurringTask of this.tasks.filter((task): task is RecurringTask => task instanceof RecurringTask)) {
           // Check if anti-task is within date range and correct time
           if (
@@ -234,7 +233,6 @@ export default class PSSModel {
               Frequency?: number;
               Date: number;
             }) => {
-              console.log(taskData);
               const { Name, Type, StartDate, StartTime, Duration, EndDate, Frequency, Date } = taskData;
               let result: true | string | undefined;
               switch (Type) {

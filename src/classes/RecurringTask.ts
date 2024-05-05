@@ -35,7 +35,6 @@ export class RecurringTask extends Task<RecurringTaskType> {
   }
 
   override appendTo(taskArr: Task<string>[]): void {
-    console.log(this.frequency);
     switch (this.frequency) {
       case Frequency.Daily:
         this.appendRecurringTasks(taskArr, 1);
@@ -47,11 +46,9 @@ export class RecurringTask extends Task<RecurringTaskType> {
         this.appendRecurringTasks(taskArr, 100);
         break;
     }
-    console.log("After Appending", taskArr);
   }
 
   private appendRecurringTasks(taskArr: Task<string>[], frequency: number): void {
-    console.log(this.startDate, this.endDate);
     for (let startDate = this.startDate; startDate <= this.endDate; startDate += frequency) {
       startDate = this.validateDate(startDate);
       const recurringTask = new RecurringTask(
@@ -63,7 +60,6 @@ export class RecurringTask extends Task<RecurringTaskType> {
         this.endDate!,
         this.frequency!
       );
-      console.log("Pushing", recurringTask);
       taskArr.push(recurringTask);
     }
   }
