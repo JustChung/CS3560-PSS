@@ -60,8 +60,8 @@ export class RecurringTask extends Task<RecurringTaskType> {
   // Increments month and year if necessary
   private validateDate(date: number): number {
     let newDate = date
-    let day = getDigit(date, 1)+getDigit(date, 2)
-    let month = getDigit(date, 3)+getDigit(date, 4)
+    let day = getDigit(date, 1)+getDigit(date, 2)*10
+    let month = getDigit(date, 3)+getDigit(date, 4)*10
     let year = (date - (month*100+day)) / 10**4
     if (day > getDaysInMonth(month, year)) {
       newDate += 100

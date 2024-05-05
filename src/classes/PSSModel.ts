@@ -1,4 +1,4 @@
-import { calcEndTime, dayOfTheWeek, getDateTime, getDayOfMonth } from "../utils";
+import { calcEndTime, dayOfTheWeek, getDateTime, getDayOfMonth, getDigit, getDaysInMonth } from "../utils";
 import { AntiTask, AntiTaskType } from "./AntiTask";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
@@ -84,7 +84,23 @@ export default class PSSModel {
     this.printTasks()
     return true;
   }
-  
+
+  verifyValidDate(date: number): true | string {
+    if (date >= 100000000) {
+      return "Invalid date length. Date format must be YYYYMMDD."
+    }
+    let day = getDigit(date, 1)+getDigit(date, 2)*10
+    let month = getDigit(date, 3)+getDigit(date, 4)*10
+    console.log(month)
+    let year = (date - (month*100+day)) / 10**4
+    if (day > getDaysInMonth(month, year)) {
+      return "Invalid day: given day exceeds the number of days in given month"
+    }
+    if (month > 12) {
+      return "Invalid month: given month exceeds 12"
+    }
+    return true
+  }
 
   writeScheduleToFile(fileName: string): void {
     // NEED TO IMPLEMENT
