@@ -1,4 +1,4 @@
-import { calcEndTime, getDateTime, getDigit, getDaysInMonth } from "../utils";
+import { calcEndTime, getDateTime, dayOfTheWeek, getDigit, getDayOfMonth, getDaysInMonth } from "../utils";
 import { AntiTask, AntiTaskType } from "./AntiTask";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
@@ -68,22 +68,68 @@ export default class PSSModel {
     startDate: number,
     startTime: number,
     duration: number,
+    endDate?: number,
+    frequency?: Frequency,
   ): true | string {
     // Check for overlapping transient tasks
-    for (const task of this.tasks) {
-      if (
-        task.startDate === startDate &&
-        startTime < calcEndTime(task.startTime, task.duration) &&
-        task.startTime < calcEndTime(startTime, duration)
-      ) {
-        return `New ${taskClass} task conflicts with existing ${task.taskType} "${task.name}" on ${getDateTime(
-          task.startDate,
-          task.startTime
-        )}.`;
-      }
+    switch (taskClass) {
+      case "transient":
+        for (const task of this.tasks) {
+          if (
+            task.startDate === startDate &&
+            startTime < calcEndTime(task.startTime, task.duration) &&
+            task.startTime < calcEndTime(startTime, duration)
+          ) {
+            return `New ${taskClass} task conflicts with existing ${task.taskType} "${task.name}" on ${getDateTime(
+              task.startDate,
+              task.startTime
+            )}.`;
+          }
+        }
+        return true;
+      case "recurring":
+        for (const task of this.tasks) {
+          if (
+            Frequency.Daily ||
+            (frequency === Frequency.Weekly && dayOfTheWeek(startDate) === dayOfTheWeek(endDate ?? -1)) ||
+            (frequency === Frequency.Monthly && getDayOfMonth(task.startDate) === getDayOfMonth(startDate))
+          ) {
+            // Check for overlapping time
+            if (
+              startTime < calcEndTime(task.startDate, task.duration) &&
+              task.startDate < calcEndTime(startDate, duration)
+            ) {
+              return `New recurring tasks conflicts with existing ${task.taskType} task "${
+                task.name
+              }" at ${getDateTime(task.startDate, task.startTime)}`;
+            }
+          }
+        }
+        return true;
+      case "anti":
+        // Check for existing antitask (we don't need to check duration)
+        for (const antiTask of this.tasks.filter((task): task is AntiTask => task instanceof AntiTask)) {
+          if (startDate === antiTask.startDate && startTime === antiTask.startTime && duration === antiTask.duration) {
+            return `New antitask conflicts with an existing anti-task ${antiTask.name}.`;
+          }
+        }
+
+        // Check for valid recurring task
+        for (const recurringTask of this.tasks.filter((task): task is RecurringTask => task instanceof RecurringTask)) {
+          // Check if anti-task is within date range and correct time
+          if (
+            startDate === recurringTask.startDate &&
+            startTime === recurringTask.startTime &&
+            duration === recurringTask.duration
+          ) {
+            return true;
+          }
+        }
+        return `Unable to find recurring task that starts at ${getDateTime(
+          startDate,
+          startTime
+        )} and lasts for ${duration} minutes`;
     }
-    this.printTasks()
-    return true;
   }
 
   verifyValidDate(date: number): true | string {
