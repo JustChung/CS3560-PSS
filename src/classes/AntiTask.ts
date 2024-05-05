@@ -1,4 +1,3 @@
-import { RecurringTask } from "./RecurringTask";
 import Task from "./Task";
 
 export enum AntiTaskType {
