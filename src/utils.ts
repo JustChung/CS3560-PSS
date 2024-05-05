@@ -36,3 +36,10 @@ export function getDateTime(date: number, time: number): string {
 
   return new Date(year, month - 1, day, hours, minutes).toLocaleString();
 }
+
+export function getDigit(num: number, digitPlace: number) {
+  return Math.floor((num/(10**(Math.floor(digitPlace)-1))) % 10)
+}
+export function getDaysInMonth(month: number, year: number) {
+  return new Date(year, month, 0).getDate();
+}

@@ -24,6 +24,10 @@ export default class PSSController {
     if (!this.pss.verifyUniqueName(name)) {
       return `A task with the name "${name}" already exists.`;
     }
+    const validDate = this.pss.verifyValidDate(startDate) 
+    if (validDate !== true) {
+      return validDate
+    }
     const noOverlap = this.pss.verifyNoOverlap(taskClass, startDate, startTime, duration);
     if (noOverlap === true) {
       this.pss.createTask(name, taskClass, startTime, startDate, duration, taskType, endDate, frequency);
