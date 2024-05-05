@@ -1,16 +1,23 @@
 import { calcEndTime, dayOfTheWeek, getDateTime, getDayOfMonth } from "../utils";
 import { AntiTask, AntiTaskType } from "./AntiTask";
+import PSSController from "./PSSController";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
 import { TransientTask, TransientTaskType } from "./TransientTask";
 
 export default class PSSModel {
+  private controller: PSSController | null;
   private emailAddress: string;
   private tasks: Task[];
 
   constructor(emailAddress: string) {
+    this.controller = null;
     this.emailAddress = emailAddress;
     this.tasks = [];
+  }
+
+  setController(controller: PSSController) {
+    this.controller = controller;
   }
 
   printTasks(): void {
@@ -212,6 +219,10 @@ export default class PSSModel {
   
     fileReader.onload = (event) => {
       if (event.target) {
+
+        // makes use of addTask() to validate tasks, use added_task arrys to track added task for when there is an error, 
+        // and added task must be deleted from schedule
+        const added_task: string[] = [];
         try {
           const fileData = JSON.parse(event.target.result as string);
           fileData.forEach((taskData: {
@@ -235,6 +246,7 @@ export default class PSSModel {
               Frequency,
               Date
             } = taskData;
+            let result: true | string | undefined;
             switch(Type) {
               case "Class":
               case "Study":
@@ -242,7 +254,7 @@ export default class PSSModel {
               case "Exercise":
               case "Work":
               case "Meal":
-                this.createTask(
+                result = this.controller?.addTask(
                   Name,
                   "recurring",
                   StartTime,
@@ -251,10 +263,14 @@ export default class PSSModel {
                   Type,
                   EndDate,
                   Frequency
-                );
+                  )
+                if (result !== true) {
+                  throw new Error(result)
+                }
+                added_task.push(Name);
                 break;
               case "Cancellation":
-                this.createTask(
+                result = this.controller?.addTask(
                   Name,
                   "anti",
                   StartTime,
@@ -262,11 +278,15 @@ export default class PSSModel {
                   Duration,
                   Type
                 );
+                if (result !== true) {
+                  throw new Error(result)
+                }
+                added_task.push(Name);
                 break;
               case "Visit":
               case "Shopping":
               case "Appointment":
-                this.createTask(
+                result = this.controller?.addTask(
                   Name,
                   "transient",
                   StartTime,
@@ -274,6 +294,10 @@ export default class PSSModel {
                   Duration,
                   Type
                 );
+                if (result !== true) {
+                  throw new Error(result)
+                }
+                added_task.push(Name);
                 break;
               default:
                 console.log(`Could not create task ${Name}`);
@@ -283,6 +307,7 @@ export default class PSSModel {
   
           console.log(`Schedule from file '${file.name}' loaded successfully.`);
         } catch (error) {
+          added_task.forEach((taskName) => { this.deleteTask(taskName) });
           console.error(`Error in '${file.name}':`, error);
         }
       }

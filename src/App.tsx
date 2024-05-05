@@ -9,6 +9,7 @@ function App() {
   useEffect(() => {
     const pssModel = new PSSModel("temp@email.com");
     const controller = new PSSController(pssModel);
+    pssModel.setController(controller);
     setPSSController(controller);
   }, []);
 
