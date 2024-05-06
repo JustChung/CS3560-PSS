@@ -63,8 +63,12 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
 
   const [showError, setShowError] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
   const hideError = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
     if (reason !== "clickaway") setShowError(false);
+  }, []);
+  const hideSuccess = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
+    if (reason !== "clickaway") setShowSuccess(false);
   }, []);
 
   const createTask = useCallback(() => {
@@ -81,6 +85,10 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
     if (result !== true) {
       setErrorText(result);
       setShowError(true);
+      setShowSuccess(false);
+    } else {
+      setShowError(false);
+      setShowSuccess(true);
     }
     controller.pss.printTasks();
   }, [controller, duration, endDate, frequency, name, startDate, startTime, taskClass, taskType]);
@@ -141,6 +149,11 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
           <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
             <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
               {errorText}
+            </Alert>
+          </Snackbar>
+          <Snackbar open={showSuccess} autoHideDuration={6000} onClose={hideSuccess}>
+            <Alert severity='success' variant='filled' sx={{ width: "100%" }}>
+              Task created successfully!
             </Alert>
           </Snackbar>
         </FormControl>
