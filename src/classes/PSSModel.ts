@@ -56,6 +56,7 @@ export default class PSSModel {
           endDate!,
           frequency!
         );
+        console.log("apeending", recurringTask);
         recurringTask.appendTo(this.tasks);
         break;
       }

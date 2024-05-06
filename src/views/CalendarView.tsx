@@ -37,9 +37,10 @@ const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask; tasks:
       color={getTaskColor(task, tasks)}
       size='small'
       sx={{ display: "flex", justifyContent: "flex-start" }}
+      clickable
       label={
         <Typography variant='body2' noWrap>
-          <b>{getTime(task.startTime)}</b> - {task.name}
+          <b>{getTime(task.startTime)}</b>: {task.name}
         </Typography>
       }
     />
