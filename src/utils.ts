@@ -12,6 +12,13 @@ export function getDayOfMonth(date: number): number {
   return date % 100;
 }
 
+export function getTime(time: number): string {
+  const hours = Math.floor(time);
+  const minutes = (time % 1) * 60;
+
+  return new Date(0, 0, 0, hours, minutes).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
 export function getDateTime(date: number, time: number): string {
   const day = date % 100;
   const month = Math.floor(date / 100) % 100;

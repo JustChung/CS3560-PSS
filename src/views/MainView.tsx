@@ -7,6 +7,7 @@ import WriteReadScheduleView from "./WriteReadScheduleView";
 import PSSController from "../classes/PSSController";
 import { Box, Container, Tab, Typography } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { CalendarView } from "./CalendarView";
 
 interface MainViewProps {
   controller: PSSController;
@@ -23,7 +24,7 @@ const MainView: React.FC<MainViewProps> = ({ controller }) => {
   );
 
   return (
-    <Container>
+    <Container maxWidth='xl'>
       <Typography variant='h1'>Main View</Typography>
       <TabContext value={displayedView}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -51,6 +52,7 @@ const MainView: React.FC<MainViewProps> = ({ controller }) => {
           <WriteReadScheduleView controller={controller} />
         </TabPanel>
       </TabContext>
+      <CalendarView controller={controller} />
     </Container>
   );
 };

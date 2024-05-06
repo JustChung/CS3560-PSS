@@ -200,12 +200,13 @@ export default class PSSModel {
       const blob = new Blob([scheduleData], { type: "application/json" });
       saveAs(blob, fileName);
       console.log(`Schedule saved to file '${fileName}' successfully.`);
-    } catch(error) {
+    } catch (error) {
       console.error(`Error saving schedule to file '${fileName}':`, error);
     }
   }
 
-  getSchedule(startDate: number, type: "day" | "week" | "month"): Task[] {
+  getSchedule(startDate: number, type: "day" | "week" | "month" | "calendar"): Task[] {
+    let newStartDate = startDate;
     let endDate: number;
     switch (type) {
       case "day":
@@ -217,13 +218,18 @@ export default class PSSModel {
       case "month":
         endDate = startDate + 31;
         break;
+      case "calendar":
+        // Get previous and next month
+        newStartDate -= 100;
+        endDate = startDate + 131;
+        break;
       default:
         throw new Error("Invalid type specified");
     }
 
     return this.tasks.filter((task) => {
       // TODO (luciano) this doesn't work with recurring tasks
-      return task.startDate >= startDate && task.startDate < endDate;
+      return task.startDate >= newStartDate && task.startDate < endDate;
     });
   }
 

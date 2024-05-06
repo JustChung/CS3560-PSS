@@ -1,0 +1,200 @@
+[
+  {
+    "Name": "CS3560-Tu",
+    "Type": "Class",
+    "StartDate": 20200414,
+    "StartTime": 19,
+    "Duration": 1.25,
+    "EndDate": 20200505,
+    "Frequency": 7
+  },
+  {
+    "Name": "CS3560-Th",
+    "Type": "Class",
+    "StartDate": 20200416,
+    "StartTime": 19,
+    "Duration": 1.25,
+    "EndDate": 20200507,
+    "Frequency": 7
+  },
+  {
+    "Name": "Skip For Visit",
+    "Type": "Cancellation",
+    "Date": 20200428,
+    "StartTime": 19,
+    "Duration": 1.25
+  },
+  {
+    "Name": "Intern Interview",
+    "Type": "Appointment",
+    "Date": 20200428,
+    "StartTime": 17,
+    "Duration": 2.5
+  },
+  {
+    "Name": "Dinner",
+    "Type": "Meal",
+    "StartDate": 20200414,
+    "StartTime": 17,
+    "Duration": 1,
+    "EndDate": 20200507,
+    "Frequency": 1
+  },
+  {
+    "Name": "Homework",
+    "Type": "Study",
+    "StartDate": 20200414,
+    "StartTime": 15,
+    "Duration": 1,
+    "EndDate": 20200507,
+    "Frequency": 1
+  },
+  {
+    "Name": "Going to Mall",
+    "Type": "Shopping",
+    "Date": 20200501,
+    "StartTime": 10,
+    "Duration": 1.5
+  },
+  {
+    "Name": "Study Session",
+    "Type": "Study",
+    "StartDate": 20200417,
+    "StartTime": 15,
+    "Duration": 1.5,
+    "EndDate": 20200508,
+    "Frequency": 7
+  },
+  {
+    "Name": "Morning Run",
+    "Type": "Exercise",
+    "StartDate": 20200414,
+    "StartTime": 7,
+    "Duration": 1,
+    "EndDate": 20200507,
+    "Frequency": 1
+  },
+  {
+    "Name": "Work Project",
+    "Type": "Work",
+    "StartDate": 20200416,
+    "StartTime": 13,
+    "Duration": 2,
+    "EndDate": 20200507,
+    "Frequency": 3
+  },
+  {
+    "Name": "Doctor's Appointment",
+    "Type": "Appointment",
+    "Date": 20200429,
+    "StartTime": 11,
+    "Duration": 1
+  },
+  {
+    "Name": "Grocery Shopping",
+    "Type": "Shopping",
+    "Date": 20200502,
+    "StartTime": 10,
+    "Duration": 1.5
+  },
+  {
+    "Name": "Lunch Break",
+    "Type": "Meal",
+    "StartDate": 20200414,
+    "StartTime": 12,
+    "Duration": 1,
+    "EndDate": 20200507,
+    "Frequency": 1
+  },
+  {
+    "Name": "Family Visit",
+    "Type": "Visit",
+    "Date": 20200504,
+    "StartTime": 18,
+    "Duration": 3
+  },
+  {
+    "Name": "Cycling in Park",
+    "Type": "Exercise",
+    "StartDate": 20200415,
+    "StartTime": 16,
+    "Duration": 1,
+    "EndDate": 20200506,
+    "Frequency": 7
+  },
+  {
+    "Name": "Midday Yoga",
+    "Type": "Exercise",
+    "StartDate": 20200418,
+    "StartTime": 11,
+    "Duration": 1,
+    "EndDate": 20200509,
+    "Frequency": 7
+  },
+  {
+    "Name": "Evening Walk",
+    "Type": "Exercise",
+    "StartDate": 20200413,
+    "StartTime": 20,
+    "Duration": 1,
+    "EndDate": 20200504,
+    "Frequency": 7
+  },
+  {
+    "Name": "Book Club Meeting",
+    "Type": "Study",
+    "StartDate": 20200419,
+    "StartTime": 15,
+    "Duration": 2,
+    "EndDate": 20200510,
+    "Frequency": 7
+  },
+  {
+    "Name": "Late Night Snack",
+    "Type": "Meal",
+    "StartDate": 20200415,
+    "StartTime": 22,
+    "Duration": 0.5,
+    "EndDate": 20200506,
+    "Frequency": 1
+  },
+  {
+    "Name": "Afternoon Siesta",
+    "Type": "Sleep",
+    "StartDate": 20200417,
+    "StartTime": 14,
+    "Duration": 1.5,
+    "EndDate": 20200508,
+    "Frequency": 1
+  },
+  {
+    "Name": "Remote Work Hours",
+    "Type": "Work",
+    "StartDate": 20200420,
+    "StartTime": 9,
+    "Duration": 4,
+    "EndDate": 20200511,
+    "Frequency": 1
+  },
+  {
+    "Name": "Dental Checkup",
+    "Type": "Appointment",
+    "Date": 20200430,
+    "StartTime": 10,
+    "Duration": 1
+  },
+  {
+    "Name": "Friend's Birthday Party",
+    "Type": "Visit",
+    "Date": 20200505,
+    "StartTime": 19,
+    "Duration": 3
+  },
+  {
+    "Name": "New Laptop Purchase",
+    "Type": "Shopping",
+    "Date": 20200425,
+    "StartTime": 15,
+    "Duration": 2
+  }
+]
