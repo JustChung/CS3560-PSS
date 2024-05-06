@@ -221,7 +221,7 @@ export default class PSSModel {
         const addedTasks: string[] = [];
         try {
           const fileData = JSON.parse(event.target.result as string);
-          fileData.forEach((taskData: any) => {
+          for (const taskData of fileData) {
             const { Name, Type, StartDate, StartTime, Duration, EndDate, Frequency, Date } = taskData;
             let result: true | string | undefined;
             switch (Type) {
@@ -266,7 +266,7 @@ export default class PSSModel {
                 console.log(`Could not create task ${Name}`);
                 break;
             }
-          });
+          };
 
           console.log(`Schedule from file '${file.name}' loaded successfully.`);
         } catch (error) {
