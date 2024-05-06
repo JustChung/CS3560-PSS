@@ -1,4 +1,3 @@
-import React from "react";
 import PSSController from "../classes/PSSController";
 
 interface TaskViewProps {

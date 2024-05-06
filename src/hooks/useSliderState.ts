@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+
 export const useSliderState = (defaultState: number): [number, (_ev: Event, val: number | number[]) => void] => {
   const [state, setState] = useState<number>(defaultState);
 

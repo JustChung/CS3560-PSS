@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import ScheduleView from "./ScheduleView";
 import TaskView from "./TaskView";
 import FindTaskView from "./FindTaskView";
 import CreateTaskView from "./CreateTaskView";
 import WriteReadScheduleView from "./WriteReadScheduleView";
+import { CalendarView } from "./CalendarView";
 import PSSController from "../classes/PSSController";
 import { Box, Container, Stack, Tab, Typography } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { CalendarView } from "./CalendarView";
 
 interface MainViewProps {
   controller: PSSController;

@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PSSController from "../classes/PSSController";
 import Task from "../classes/Task";
-import "rsuite/Calendar/styles/index.css";
 
 interface ScheduleViewProps {
   controller: PSSController;
