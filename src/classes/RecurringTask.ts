@@ -66,18 +66,21 @@ export class RecurringTask extends Task<RecurringTaskType> {
 
   // Increments month and year if necessary
   private validateDate(date: number): number {
-    let newDate = date;
     const day = getDigit(date, 1) + getDigit(date, 2) * 10;
     const month = getDigit(date, 3) + getDigit(date, 4) * 10;
-    const year = (date - (month * 100 + day)) / 10 ** 4;
-    if (day > getDaysInMonth(month, year)) {
-      newDate += 100;
-      newDate -= day;
+    const year = Math.floor(date / 10000);
+
+    const currentDate = new Date(year, month - 1, day);
+    const daysInMonth = getDaysInMonth(currentDate.getMonth() + 1, currentDate.getFullYear());
+
+    if (currentDate.getDate() > daysInMonth) {
+      currentDate.setDate(daysInMonth);
     }
-    if (month > 12) {
-      newDate += 10000;
-      newDate -= month;
-    }
-    return newDate;
+    
+    const adjustedDay = currentDate.getDate();
+    const adjustedMonth = currentDate.getMonth() + 1;
+    const adjustedYear = currentDate.getFullYear();
+
+    return adjustedYear * 10000 + adjustedMonth * 100 + adjustedDay;
   }
 }
