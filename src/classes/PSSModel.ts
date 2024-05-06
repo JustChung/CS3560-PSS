@@ -4,6 +4,7 @@ import PSSController from "./PSSController";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
 import { TransientTask, TransientTaskType } from "./TransientTask";
+import { saveAs } from "file-saver";
 
 export default class PSSModel {
   private controller: PSSController | null;
@@ -180,8 +181,14 @@ export default class PSSModel {
   }
 
   writeScheduleToFile(fileName: string): void {
-    // NEED TO IMPLEMENT
-    fileName;
+    try {
+      const scheduleData = JSON.stringify(this.tasks);
+      const blob = new Blob([scheduleData], { type: "application/json" });
+      saveAs(blob, fileName);
+      console.log(`Schedule saved to file '${fileName}' successfully.`);
+    } catch(error) {
+      console.error(`Error saving schedule to file '${fileName}':`, error);
+    }
   }
 
   getSchedule(startDate: number, type: "day" | "week" | "month"): Task[] {
