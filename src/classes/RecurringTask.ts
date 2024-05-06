@@ -36,25 +36,30 @@ export class RecurringTask extends Task<RecurringTaskType> {
   }
 
   override appendTo(taskArr: Task<string>[]): void {
+    const recurringTasks: RecurringTask[] = [];
+    
     switch (this.frequency) {
       case Frequency.Daily:
-        this.appendRecurringTasks(taskArr, 1);
+        this.generateRecurringTasks(recurringTasks, 1);
         break;
       case Frequency.Weekly:
-        this.appendRecurringTasks(taskArr, 7);
+        this.generateRecurringTasks(recurringTasks, 7);
         break;
       case Frequency.Monthly:
-        this.appendRecurringTasks(taskArr, 100);
+        this.generateRecurringTasks(recurringTasks, 100);
         break;
+    }
+
+    if (this.checkNoConflicts(taskArr, recurringTasks)) {
+      taskArr.push(...recurringTasks);
+    } else {
+      throw new Error(`Overlap detected: Unable to add recurring tasks due to scheduling conflict.`);
     }
   }
 
-  private appendRecurringTasks(taskArr: Task<string>[], frequency: number): void {
+  private generateRecurringTasks(taskArr: RecurringTask[], frequency: number): void {
     for (let startDate = this.startDate; startDate <= this.endDate; startDate += frequency) {
       startDate = this.validateDate(startDate);
-      if (!this.verifyNoOverlap(taskArr, startDate, this.startTime, this.duration)) {
-        throw new Error(`Overlap detected: Unable to add recurring task "${this.name}" due to scheduling conflict.`);
-      }
       const recurringTask = new RecurringTask(
         this.name,
         this.taskType as RecurringTaskType,
@@ -68,29 +73,31 @@ export class RecurringTask extends Task<RecurringTaskType> {
     }
   }
 
-  private verifyNoOverlap(taskArr: Task<string>[], startDate: number, startTime: number, duration: number): boolean {
-    for (const task of taskArr) {
-      if (
-        task.startDate === startDate &&
-        startTime < task.startTime + task.duration &&
-        task.startTime < startTime + duration
-      ) {
-        if (task instanceof AntiTask) {
-          continue;
-        }
+  private checkNoConflicts(taskArr: Task<string>[], recurringTasks: RecurringTask[]): boolean {
+    for (const recurringTask of recurringTasks) {
+      for (const task of taskArr) {
         if (
-          task instanceof RecurringTask &&
-          taskArr.some(
-            (aTask) =>
-              aTask instanceof AntiTask &&
-              aTask.startDate === task.startDate &&
-              aTask.startTime === task.startTime &&
-              aTask.duration === task.duration
-          )
+          task.startDate === recurringTask.startDate &&
+          recurringTask.startTime < task.startTime + task.duration &&
+          task.startTime < recurringTask.startTime + recurringTask.duration
         ) {
-          continue;
+          if (task instanceof AntiTask) {
+            continue;
+          }
+          if (
+            task instanceof RecurringTask &&
+            taskArr.some(
+              (aTask) =>
+                aTask instanceof AntiTask &&
+                aTask.startDate === task.startDate &&
+                aTask.startTime === task.startTime &&
+                aTask.duration === task.duration
+            )
+          ) {
+            continue;
+          }
+          return false;
         }
-        return false;
       }
     }
     return true;
