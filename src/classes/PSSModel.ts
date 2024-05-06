@@ -223,82 +223,57 @@ export default class PSSModel {
 
   readScheduleFromFile(file: File): void {
     const fileReader = new FileReader();
-
+  
     fileReader.onload = (event) => {
       if (event.target) {
-        // makes use of addTask() to validate tasks, use added_task arrys to track added task for when there is an error,
-        // and added task must be deleted from schedule
-        const added_task: string[] = [];
         try {
           const fileData = JSON.parse(event.target.result as string);
-          fileData.forEach(
-            (taskData: {
-              Name: string;
-              Type: TransientTaskType | RecurringTaskType | AntiTaskType;
-              StartDate: number;
-              StartTime: number;
-              Duration: number;
-              EndDate?: number;
-              Frequency?: number;
-              Date: number;
-            }) => {
-              const { Name, Type, StartDate, StartTime, Duration, EndDate, Frequency, Date } = taskData;
-              let result: true | string | undefined;
-              switch (Type) {
-                case "Class":
-                case "Study":
-                case "Sleep":
-                case "Exercise":
-                case "Work":
-                case "Meal":
-                  result = this.controller?.addTask(
-                    Name,
-                    "recurring",
-                    StartTime,
-                    StartDate,
-                    Duration,
-                    Type,
-                    EndDate,
-                    Frequency ? numberToFrequency(Frequency) : undefined
-                  );
-                  if (result !== true) {
-                    throw new Error(result);
-                  }
-                  added_task.push(Name);
-                  break;
-                case "Cancellation":
-                  result = this.controller?.addTask(Name, "anti", StartTime, Date, Duration, Type);
-                  if (result !== true) {
-                    throw new Error(result);
-                  }
-                  added_task.push(Name);
-                  break;
-                case "Visit":
-                case "Shopping":
-                case "Appointment":
-                  result = this.controller?.addTask(Name, "transient", StartTime, Date, Duration, Type);
-                  if (result !== true) {
-                    throw new Error(result);
-                  }
-                  added_task.push(Name);
-                  break;
-                default:
-                  console.log(`Could not create task ${Name}`);
-                  break;
-              }
+          for (const taskData of fileData) {
+            const { Name, Type, StartDate, StartTime, Duration, EndDate, Frequency, Date } = taskData;
+            let result: true | string | undefined;
+            switch (Type) {
+              case "Class":
+              case "Study":
+              case "Sleep":
+              case "Exercise":
+              case "Work":
+              case "Meal":
+                result = this.controller?.addTask(
+                  Name,
+                  "recurring",
+                  StartTime,
+                  StartDate,
+                  Duration,
+                  Type,
+                  EndDate,
+                  Frequency ? numberToFrequency(Frequency) : undefined
+                );
+                break;
+              case "Cancellation":
+                result = this.controller?.addTask(Name, "anti", StartTime, Date, Duration, Type);
+                break;
+              case "Visit":
+              case "Shopping":
+              case "Appointment":
+                result = this.controller?.addTask(Name, "transient", StartTime, Date, Duration, Type);
+                break;
+              default:
+                console.log(`Could not create task ${Name}`);
+                break;
             }
-          );
-
+            if (result !== true) {
+              throw new Error(result);
+            }
+          }
           console.log(`Schedule from file '${file.name}' loaded successfully.`);
         } catch (error) {
-          added_task.forEach((taskName) => {
-            this.deleteTask(taskName);
-          });
           console.error(`Error in '${file.name}':`, error);
+          return; // Stop processing the file if an error occurs
         }
       }
     };
-
+  
     fileReader.readAsText(file);
   }
-}
+  
+}  

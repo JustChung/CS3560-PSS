@@ -1,5 +1,7 @@
 import Task from "./Task";
-import { getDigit, getDaysInMonth } from "../utils";
+import { AntiTask } from "./AntiTask";
+import { TransientTask } from "./TransientTask";
+import { dayOfTheWeek, getDigit, getDayOfMonth, getDaysInMonth } from "../utils";
 
 export enum RecurringTaskType {
   Class = "Class",
@@ -34,7 +36,7 @@ export class RecurringTask extends Task<RecurringTaskType> {
     this.frequency = frequency;
   }
 
-  override appendTo(taskArr: Task<string>[]): void {
+  appendTo(taskArr: Task<string>[]): void {
     switch (this.frequency) {
       case Frequency.Daily:
         this.appendRecurringTasks(taskArr, 1);
@@ -47,7 +49,7 @@ export class RecurringTask extends Task<RecurringTaskType> {
         break;
     }
   }
-
+  
   private appendRecurringTasks(taskArr: Task<string>[], frequency: number): void {
     for (let startDate = this.startDate; startDate <= this.endDate; startDate += frequency) {
       startDate = this.validateDate(startDate);
@@ -60,8 +62,47 @@ export class RecurringTask extends Task<RecurringTaskType> {
         this.endDate!,
         this.frequency!
       );
+      if (!this.verifyNoOverlap(recurringTask, taskArr)) {
+        throw new Error(`Unable to add recurring task ${this.name}: overlaps with existing task`);
+      }
       taskArr.push(recurringTask);
     }
+  }
+  
+
+  private verifyNoOverlap(recurringTask: RecurringTask, taskArr: Task<string>[]): boolean {
+    for (const task of taskArr) {
+      if (
+        task instanceof AntiTask ||
+        !(
+          (task instanceof RecurringTask || task instanceof TransientTask) &&
+          (
+            (task instanceof TransientTask && task.startDate === recurringTask.startDate && task.startTime === recurringTask.startTime) ||
+            (
+              task instanceof RecurringTask &&
+              (
+                (recurringTask.frequency === Frequency.Daily) ||
+                (
+                  recurringTask.frequency === Frequency.Weekly &&
+                  dayOfTheWeek(recurringTask.startDate) === dayOfTheWeek(task.startDate)
+                ) ||
+                (
+                  recurringTask.frequency === Frequency.Monthly &&
+                  getDayOfMonth(recurringTask.startDate) === getDayOfMonth(task.startDate)
+                )
+              )
+            )
+          ) &&
+          (
+            recurringTask.startTime < task.startTime + task.duration &&
+            task.startTime < recurringTask.startTime + recurringTask.duration
+          )
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // Increments month and year if necessary
