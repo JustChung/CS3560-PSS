@@ -105,6 +105,7 @@ export default class PSSModel {
               task instanceof RecurringTask &&
               this.tasks.some(
                 (aTask) =>
+                  aTask instanceof AntiTask &&
                   aTask.startDate === task.startDate &&
                   aTask.startTime === task.startTime &&
                   aTask.duration === task.duration
