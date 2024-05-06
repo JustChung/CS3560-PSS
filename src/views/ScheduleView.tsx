@@ -23,6 +23,11 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
     setTasks(retrievedTasks || []);
   };
 
+  const handleDeleteTask = (name: string) => {
+    controller.deleteTask(name);
+    handleViewSchedule();
+  };
+
   return (
     <div>
       <h2>Schedule View</h2>
@@ -55,6 +60,7 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
               <div className='event-title'>{"Event Name: " + task.name}</div>
               <div className='event-description'>{"Type of Task: " + task.taskType}</div>
             </div>
+            <button onClick={() => handleDeleteTask(task.name)}>Delete</button>
             {index !== tasks.length - 1 && <br />}
           </div>
         ))}
