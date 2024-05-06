@@ -12,16 +12,16 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   const [scheduleType, setScheduleType] = useState<"day" | "week" | "month">("day");
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  useEffect(() => {
-    handleViewSchedule();
-  }, [startDate, scheduleType]);
-
   const handleViewSchedule = () => {
     const formattedStartDate = new Date(startDate).toISOString().split("T")[0].replace(/-/g, "");
     const numericStartDate = parseInt(formattedStartDate, 10);
     const retrievedTasks = controller.viewSchedule(numericStartDate, scheduleType);
     setTasks(retrievedTasks || []);
   };
+
+  useEffect(() => {
+    handleViewSchedule();
+  }, [startDate, scheduleType, handleViewSchedule]);
 
   const handleDeleteTask = (name: string) => {
     controller.deleteTask(name);
