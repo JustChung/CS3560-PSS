@@ -266,7 +266,7 @@ export default class PSSModel {
                 console.log(`Could not create task ${Name}`);
                 break;
             }
-          };
+          }
 
           console.log(`Schedule from file '${file.name}' loaded successfully.`);
         } catch (error) {
