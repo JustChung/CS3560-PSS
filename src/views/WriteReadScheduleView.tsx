@@ -14,10 +14,16 @@ const WriteReadScheduleView: React.FC<WriteReadScheduleViewProps> = ({ controlle
     }
   };
 
+  const handleExportSchedule = () => {
+    controller.outputScheduleToFile("schedule.json");
+  };
+
   return (
     <div>
       <h2>WriteReadScheduleView</h2>
       <input type="file" onChange={handleFileInputChange} />
+      <br /><br />
+      <button onClick={handleExportSchedule}>Export Schedule</button>
     </div>
   );
 };
