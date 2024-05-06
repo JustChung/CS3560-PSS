@@ -123,6 +123,20 @@ export default class PSSModel {
         return true;
       case "recurring":
         for (const task of this.tasks) {
+          // Skip if anti-task
+          if (task instanceof AntiTask) continue;
+          // Skip if the task we're checking is a recurring task that's cancelled out
+          if (
+            task instanceof RecurringTask &&
+            this.tasks.some(
+              (aTask) =>
+                aTask.startDate === task.startDate &&
+                aTask.startTime === task.startTime &&
+                aTask.duration === task.duration
+            )
+          ) {
+            continue;
+          }
           if (
             Frequency.Daily ||
             (frequency === Frequency.Weekly && dayOfTheWeek(startDate) === dayOfTheWeek(endDate ?? -1)) ||
