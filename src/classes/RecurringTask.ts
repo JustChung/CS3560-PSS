@@ -1,5 +1,6 @@
 import Task from "./Task";
 import { getDigit, getDaysInMonth } from "../utils";
+import { AntiTask } from "./AntiTask";
 
 export enum RecurringTaskType {
   Class = "Class",
@@ -51,6 +52,9 @@ export class RecurringTask extends Task<RecurringTaskType> {
   private appendRecurringTasks(taskArr: Task<string>[], frequency: number): void {
     for (let startDate = this.startDate; startDate <= this.endDate; startDate += frequency) {
       startDate = this.validateDate(startDate);
+      if (!this.verifyNoOverlap(taskArr, startDate, this.startTime, this.duration)) {
+        throw new Error(`Overlap detected: Unable to add recurring task "${this.name}" due to scheduling conflict.`);
+      }
       const recurringTask = new RecurringTask(
         this.name,
         this.taskType as RecurringTaskType,
@@ -64,7 +68,34 @@ export class RecurringTask extends Task<RecurringTaskType> {
     }
   }
 
-  // Increments month and year if necessary
+  private verifyNoOverlap(taskArr: Task<string>[], startDate: number, startTime: number, duration: number): boolean {
+    for (const task of taskArr) {
+      if (
+        task.startDate === startDate &&
+        startTime < task.startTime + task.duration &&
+        task.startTime < startTime + duration
+      ) {
+        if (task instanceof AntiTask) {
+          continue;
+        }
+        if (
+          task instanceof RecurringTask &&
+          taskArr.some(
+            (aTask) =>
+              aTask instanceof AntiTask &&
+              aTask.startDate === task.startDate &&
+              aTask.startTime === task.startTime &&
+              aTask.duration === task.duration
+          )
+        ) {
+          continue;
+        }
+        return false;
+      }
+    }
+    return true;
+  }
+
   private validateDate(date: number): number {
     const day = getDigit(date, 1) + getDigit(date, 2) * 10;
     const month = getDigit(date, 3) + getDigit(date, 4) * 10;
@@ -76,7 +107,7 @@ export class RecurringTask extends Task<RecurringTaskType> {
     if (currentDate.getDate() > daysInMonth) {
       currentDate.setDate(daysInMonth);
     }
-    
+
     const adjustedDay = currentDate.getDate();
     const adjustedMonth = currentDate.getMonth() + 1;
     const adjustedYear = currentDate.getFullYear();
