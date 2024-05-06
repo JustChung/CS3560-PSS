@@ -1,3 +1,5 @@
+import { Frequency } from "./classes/RecurringTask";
+
 export function dayOfTheWeek(date: number): number {
   const day = date % 100;
   const month = Math.floor(date / 100) % 100;
@@ -10,36 +12,34 @@ export function getDayOfMonth(date: number): number {
   return date % 100;
 }
 
-export function calcEndTime(startTime: number, duration: number) {
-  const hours = Math.floor(duration);
-  const minutes = (duration % 1) * 100;
-
-  let newHours = Math.floor(startTime / 100) + hours;
-  let newMinutes = (startTime % 100) + minutes;
-
-  // carry the 1 from minutes
-  if (newMinutes >= 60) {
-    newMinutes -= 60;
-    newHours += 1;
-  }
-
-  return newHours * 100 + newMinutes;
-}
-
 export function getDateTime(date: number, time: number): string {
   const day = date % 100;
   const month = Math.floor(date / 100) % 100;
   const year = Math.floor(date / 10000);
 
-  const hours = Math.floor(time / 100);
-  const minutes = time % 100;
+  const hours = Math.floor(time);
+  const minutes = (time % 1) * 60;
 
   return new Date(year, month - 1, day, hours, minutes).toLocaleString();
 }
 
 export function getDigit(num: number, digitPlace: number) {
-  return Math.floor((num/(10**(Math.floor(digitPlace)-1))) % 10)
+  return Math.floor((num / 10 ** (Math.floor(digitPlace) - 1)) % 10);
 }
 export function getDaysInMonth(month: number, year: number) {
   return new Date(year, month, 0).getDate();
+}
+
+export function numberToFrequency(val: number): Frequency {
+  switch (val) {
+    case 1:
+      return Frequency.Daily;
+    case 7:
+      return Frequency.Weekly;
+    case 30:
+    case 31:
+      return Frequency.Monthly;
+    default:
+      throw new Error(`${val} is not a valid frequency.`);
+  }
 }
