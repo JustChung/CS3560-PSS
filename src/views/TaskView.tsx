@@ -1,4 +1,5 @@
 import PSSController from "../classes/PSSController";
+import { Box, Divider, Typography } from "@mui/material";
 
 interface TaskViewProps {
   controller: PSSController;
@@ -7,9 +8,10 @@ interface TaskViewProps {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TaskView: React.FC<TaskViewProps> = ({ controller }) => {
   return (
-    <div>
-      <h2>Task View</h2>
-    </div>
+    <Box>
+      <Typography variant='h4' textAlign={'center'}>Task View</Typography>
+      <Divider sx={{ m: 2 }} />
+    </Box>
   );
 };
 

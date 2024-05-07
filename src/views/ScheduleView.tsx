@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import PSSController from "../classes/PSSController";
+import { Box, Button, Container, Divider, MenuItem, Select, Typography } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { useTimePicker } from "../hooks/useTimePicker";
 import Task from "../classes/Task";
+import dayjs from "dayjs";
 
 interface ScheduleViewProps {
   controller: PSSController;
@@ -8,13 +14,12 @@ interface ScheduleViewProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
-  const [startDate, setStartDate] = useState<number>(Date.now());
+  const [startDate, setStartDate] = useTimePicker(dayjs());
   const [scheduleType, setScheduleType] = useState<"day" | "week" | "month">("day");
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const handleViewSchedule = useCallback(() => {
-    const formattedStartDate = new Date(startDate).toISOString().split("T")[0].replace(/-/g, "");
-    const numericStartDate = parseInt(formattedStartDate, 10);
+    const numericStartDate = parseInt(startDate.format("YYYYMMDD"));
     const retrievedTasks = controller.viewSchedule(numericStartDate, scheduleType);
     setTasks(retrievedTasks || []);
   }, [controller, scheduleType, startDate]);
@@ -29,43 +34,37 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   }, [startDate, scheduleType, handleViewSchedule]);
 
   return (
-    <div>
-      <h2>Schedule View</h2>
-      <div>
-        <label htmlFor='startDate'>Start Date:</label>
-        <input
-          type='date'
-          id='startDate'
-          value={new Date(startDate).toISOString().split("T")[0]}
-          onChange={(e) => setStartDate(new Date(e.target.value).getTime())}
-        />
-      </div>
-      <div>
-        <label htmlFor='scheduleType'>Schedule Type:</label>
-        <select
+    <Box>
+      <Typography variant='h4' textAlign={'center'}>Schedule View</Typography>
+      <Divider sx={{ m: 2 }} />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DatePicker label='Start Date' sx={{ my: 2 }} value={startDate} onChange={setStartDate} />
+      </LocalizationProvider>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant='h5'>Schedule Type:</Typography>
+        <Select sx={{ minWidth: 95, maxHeight: 40, ml: 1 }}
           id='scheduleType'
           value={scheduleType}
           onChange={(e) => setScheduleType(e.target.value as "day" | "week" | "month")}>
-          <option value='day'>Day</option>
-          <option value='week'>Week</option>
-          <option value='month'>Month</option>
-        </select>
-      </div>
-      <button onClick={handleViewSchedule}>View Schedule</button>
-      <div className='schedule-container'>
+          <MenuItem value='day'>Day</MenuItem>
+          <MenuItem value='week'>Week</MenuItem>
+          <MenuItem value='month'>Month</MenuItem>
+        </Select>
+      </Box>
+      <Button variant='outlined' onClick={handleViewSchedule} sx={{ width: 160, height: 50}}>View Schedule</Button>
+      <Divider sx={{ m: 2 }} />
+      <Box>
         {tasks.map((task, index) => (
-          <div key={index} className='event'>
-            <div className='event-time'>{"Start Time: " + task.startTime}</div>
-            <div className='event-details'>
-              <div className='event-title'>{"Event Name: " + task.name}</div>
-              <div className='event-description'>{"Type of Task: " + task.taskType}</div>
-            </div>
-            <button onClick={() => handleDeleteTask(task.name)}>Delete</button>
-            {index !== tasks.length - 1 && <br />}
-          </div>
+          <Container key={index} sx={{ my: 2 }}>
+            <Typography variant='body1' sx={{ color: '#3b3b3b'}}>{`Start Time: ${task.startTime}`}</Typography>
+            <Typography variant='body1' sx={{ color: '#3b3b3b'}}>{`Event Name: ${task.name}`}</Typography>
+            <Typography variant='body1' sx={{ color: '#3b3b3b'}}>{`Type of Task: ${task.taskType}`}</Typography>
+            <Button variant='outlined' sx={{ borderColor: 'red', color: 'red', width: 150, height: 40, mt: 0.5 }} onClick={() => handleDeleteTask(task.name)}>Delete</Button>
+            {index !== tasks.length - 1 && <Divider sx={{ m: 2 }}/>}
+          </Container>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
