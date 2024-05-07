@@ -129,12 +129,12 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
 
           <Divider sx={{ m: 3 }} />
           <DatePicker label='Start Date' sx={{ mt: 1 }} value={startDate} onChange={setStartDate} />
-          {taskClass === "recurring" && <DatePicker value={endDate} onChange={setEndDate} />}
+          {taskClass === "recurring" && <DatePicker label='End Date' value={endDate} onChange={setEndDate} sx={{ mt: 3 }} />}
 
           {taskClass === "recurring" && (
             <>
               <Divider sx={{ m: 3 }} />
-              <FormLabel sx={{ mt: 1 }}>Frequency</FormLabel>
+              <FormLabel>Frequency</FormLabel>
               <RadioGroup row onChange={setFrequency} value={frequency}>
                 <FormControlLabel value={Frequency.Daily} control={<Radio />} label='Daily' />
                 <FormControlLabel value={Frequency.Weekly} control={<Radio />} label='Weekly' />
@@ -143,7 +143,7 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
             </>
           )}
 
-          <Button onClick={createTask}>
+          <Button onClick={createTask} sx={{ mt: 1.5 }}>
             <p>Create Task</p>
           </Button>
           <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
