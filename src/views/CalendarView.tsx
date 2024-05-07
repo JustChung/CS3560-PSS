@@ -31,6 +31,18 @@ const getTaskColor = (task: TransientTask | RecurringTask, tasks: Task[]): ChipO
 };
 
 const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask; tasks: Task[] }) => {
+  const hasAntiTask = tasks.some(
+    (aTask) =>
+      aTask instanceof AntiTask &&
+      aTask.startDate === task.startDate &&
+      aTask.startTime === task.startTime &&
+      aTask.duration === task.duration
+  );
+
+  if (hasAntiTask) {
+    return null;
+  }
+
   return (
     <Chip
       variant='outlined'
