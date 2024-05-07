@@ -17,10 +17,9 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   const [startDate, setStartDate] = useTimePicker(dayjs());
   const [scheduleType, setScheduleType] = useState<"day" | "week" | "month">("day");
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [showError, setShowError] = useState(false);
-  const [errorText, setErrorText] = useState("");
-  const hideError = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
-    if (reason !== "clickaway") setShowError(false);
+  const [showDeleted, setShowDeleted] = useState(false);
+  const hideDeleted = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
+    if (reason !== "clickaway") setShowDeleted(false);
   }, []);
 
   const handleViewSchedule = useCallback(() => {
@@ -30,11 +29,8 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   }, [controller, scheduleType, startDate]);
 
   const handleDeleteTask = (name: string) => {
-    const taskDeleted = controller.deleteTask(name);
-    if (taskDeleted) {
-      setErrorText(taskDeleted);
-      setShowError(true);
-    }
+    controller.deleteTask(name);
+    setShowDeleted(true);
     handleViewSchedule();
   };
 
@@ -73,9 +69,9 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
           </Container>
         ))}
       </Box>
-      <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
+      <Snackbar open={showDeleted} autoHideDuration={6000} onClose={hideDeleted}>
         <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
-          {errorText}
+          Task deleted!
         </Alert>
       </Snackbar>
     </Box>

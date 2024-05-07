@@ -81,11 +81,15 @@ const TaskView: React.FC<TaskViewProps> = ({ controller }) => {
   const [showError, setShowError] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDeleted, setShowDeleted] = useState(false);
   const hideError = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
     if (reason !== "clickaway") setShowError(false);
   }, []);
   const hideSuccess = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
     if (reason !== "clickaway") setShowSuccess(false);
+  }, []);
+  const hideDeleted = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
+    if (reason !== "clickaway") setShowDeleted(false);
   }, []);
 
   const editTask = useCallback(() => {
@@ -147,6 +151,7 @@ const TaskView: React.FC<TaskViewProps> = ({ controller }) => {
       task && controller.deleteTask(task.name);
       setTask(null);
       setEditClicked("False");
+      setShowDeleted(true);
       controller.printTasks();
     }
   };
@@ -277,6 +282,11 @@ const TaskView: React.FC<TaskViewProps> = ({ controller }) => {
           Task edited successfully!
         </Alert>
       </Snackbar>
+      <Snackbar open={showDeleted} autoHideDuration={6000} onClose={hideDeleted}>
+      <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
+        Task deleted!
+      </Alert>
+    </Snackbar>
     </Box>
   );
 };
