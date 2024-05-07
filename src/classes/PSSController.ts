@@ -38,6 +38,10 @@ export default class PSSController {
     return true;
   }
 
+  printTasks(): void {
+    this.pss.printTasks();
+  }
+
   deleteTask(name: string): void {
     this.pss.deleteTask(name);
   }
