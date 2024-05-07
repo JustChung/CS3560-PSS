@@ -45,7 +45,7 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   return (
     <Box>
       <Typography variant='h4' textAlign={'center'}>Schedule View</Typography>
-      <Divider sx={{ m: 2 }} />
+      <Divider sx={{ my: 2 }} />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker label='Start Date' sx={{ my: 2 }} value={startDate} onChange={setStartDate} />
       </LocalizationProvider>
