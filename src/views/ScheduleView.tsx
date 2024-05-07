@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import PSSController from "../classes/PSSController";
-import { Box, Button, Container, Divider, MenuItem, Select, Typography } from "@mui/material";
+import { Alert, Box, Button, Container, Divider, MenuItem, Select, Snackbar, SnackbarCloseReason, Typography } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -17,6 +17,11 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   const [startDate, setStartDate] = useTimePicker(dayjs());
   const [scheduleType, setScheduleType] = useState<"day" | "week" | "month">("day");
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [showError, setShowError] = useState(false);
+  const [errorText, setErrorText] = useState("");
+  const hideError = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
+    if (reason !== "clickaway") setShowError(false);
+  }, []);
 
   const handleViewSchedule = useCallback(() => {
     const numericStartDate = parseInt(startDate.format("YYYYMMDD"));
@@ -25,7 +30,11 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   }, [controller, scheduleType, startDate]);
 
   const handleDeleteTask = (name: string) => {
-    controller.deleteTask(name);
+    const taskDeleted = controller.deleteTask(name);
+    if (taskDeleted) {
+      setErrorText(taskDeleted);
+      setShowError(true);
+    }
     handleViewSchedule();
   };
 
@@ -64,6 +73,11 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
           </Container>
         ))}
       </Box>
+      <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
+        <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
+          {errorText}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
