@@ -31,8 +31,6 @@ const getTaskColor = (task: TransientTask | RecurringTask, tasks: Task[]): ChipO
 };
 
 const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiTask; tasks: Task[] }) => {
-  let filteredTasks = tasks;
-
   if (task instanceof RecurringTask) {
     const associatedAntiTaskIndex = tasks.findIndex(
       (aTask) =>
@@ -43,7 +41,6 @@ const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiT
     );
 
     if (associatedAntiTaskIndex !== -1) {
-      filteredTasks = filteredTasks.filter((aTask, index) => index !== associatedAntiTaskIndex && aTask !== task);
       return null;
     }
   } else if (task instanceof AntiTask) {
@@ -56,7 +53,6 @@ const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiT
     );
 
     if (associatedRecurringTaskIndex !== -1) {
-      filteredTasks = filteredTasks.filter((aTask, index) => index !== associatedRecurringTaskIndex && aTask !== task);
       return null;
     }
   }
