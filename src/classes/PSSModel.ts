@@ -80,11 +80,15 @@ export default class PSSModel {
     // TODO (luciano): I don't think this was implemented properly, .filter doesn't modify the existing array
     const taskToDelete = this.getTask(name)
     if (taskToDelete instanceof AntiTask) {
-      // TODO: Add antitask behavior
+      const overlapTasks = this.tasks.filter((task) => task.taskType !== "Cancellation" && task.startDate===taskToDelete.startDate 
+        && task.startTime===taskToDelete.startTime);
+      if (overlapTasks) {
+        return `Deleting this anti-task creates an overlap between tasks: ${overlapTasks[0].name} and ${overlapTasks[1].name}.`
+      }
     }
     if (taskToDelete instanceof RecurringTask) {
       const relatedAntiTask = this.tasks.find((task) => {
-        return task.taskType === "Cancellation" && task.startDate === taskToDelete.startDate 
+        task.taskType === "Cancellation" && task.startDate === taskToDelete.startDate 
           && task.startTime === taskToDelete.startTime
       })
       this.tasks = this.tasks.filter((task) => task.name !== relatedAntiTask?.name);
