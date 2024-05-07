@@ -12,11 +12,21 @@ export function getDayOfMonth(date: number): number {
   return date % 100;
 }
 
+export function getDate(date: number): string {
+  const day = date % 100;
+  const month = Math.floor(date / 100) % 100;
+  const year = Math.floor(date / 10000);
+
+  return new Date(year, month - 1, day).toLocaleDateString();
+}
+
 export function getTime(time: number): string {
   const hours = Math.floor(time);
   const minutes = (time % 1) * 60;
 
-  return new Date(0, 0, 0, hours, minutes).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return new Date(0, 0, 0, hours, minutes)
+    .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    .replace(" ", "");
 }
 
 export function getDateTime(date: number, time: number): string {

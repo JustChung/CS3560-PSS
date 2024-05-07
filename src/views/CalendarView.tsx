@@ -1,13 +1,21 @@
-import { Calendar } from "rsuite";
-import PSSController from "../classes/PSSController";
 import { useState, useCallback } from "react";
-import { getTime } from "../utils";
+import PSSController from "../classes/PSSController";
+import { Calendar } from "rsuite";
+import { 
+  Button, 
+  Chip, 
+  ChipOwnProps, 
+  Popover, 
+  Stack, 
+  Typography 
+} from "@mui/material";
 import { useForceRerender } from "../hooks/useForceRerender";
-import { Button, Chip, ChipOwnProps, Popover, Stack, Typography } from "@mui/material";
 import Task from "../classes/Task";
 import { TransientTask } from "../classes/TransientTask";
 import { AntiTask } from "../classes/AntiTask";
 import { RecurringTask } from "../classes/RecurringTask";
+import { getTime } from "../utils";
+import "rsuite/Calendar/styles/index.css";
 
 const getTaskColor = (task: TransientTask | RecurringTask, tasks: Task[]): ChipOwnProps["color"] => {
   if (task instanceof TransientTask) {
@@ -30,16 +38,43 @@ const getTaskColor = (task: TransientTask | RecurringTask, tasks: Task[]): ChipO
   return "primary";
 };
 
-const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask; tasks: Task[] }) => {
+const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiTask; tasks: Task[] }) => {
+  if (task instanceof RecurringTask) {
+    const associatedAntiTaskIndex = tasks.findIndex(
+      (aTask) =>
+        aTask instanceof AntiTask &&
+        aTask.startDate === task.startDate &&
+        aTask.startTime === task.startTime &&
+        aTask.duration === task.duration
+    );
+
+    if (associatedAntiTaskIndex !== -1) {
+      return null;
+    }
+  } else if (task instanceof AntiTask) {
+    const associatedRecurringTaskIndex = tasks.findIndex(
+      (aTask) =>
+        aTask instanceof RecurringTask &&
+        aTask.startDate === task.startDate &&
+        aTask.startTime === task.startTime &&
+        aTask.duration === task.duration
+    );
+
+    if (associatedRecurringTaskIndex !== -1) {
+      return null;
+    }
+  }
+
   return (
     <Chip
       variant='outlined'
       color={getTaskColor(task, tasks)}
       size='small'
       sx={{ display: "flex", justifyContent: "flex-start" }}
+      clickable
       label={
         <Typography variant='body2' noWrap>
-          <b>{getTime(task.startTime)}</b> - {task.name}
+          <b>{getTime(task.startTime)}</b>: {task.name}
         </Typography>
       }
     />

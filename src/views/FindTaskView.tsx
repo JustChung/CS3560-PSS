@@ -1,7 +1,9 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PSSController from "../classes/PSSController";
 import Task from "../classes/Task";
-import { Alert, Snackbar, SnackbarCloseReason } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
+import { RecurringTask } from "../classes/RecurringTask";
+import { getDate, getTime } from "../utils";
 
 interface FindTaskViewProps {
   controller: PSSController;
@@ -9,69 +11,45 @@ interface FindTaskViewProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const FindTaskView: React.FC<FindTaskViewProps> = ({ controller }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [task, setTask] = useState<Task | null>(null);  
-  const [showError, setShowError] = useState(false);
-  const [errorText, setErrorText] = useState("");
-  const hideError = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
-    if (reason !== "clickaway") setShowError(false);
+  const [task, setTask] = useState<Task | null>(null);
+  const [input, setInput] = useState("");
+
+  const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setInput(event?.target.value);
   }, []);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
-  
-  const handleFindTask = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log("Search Query:", searchQuery);
-
-    // You can perform further actions, such as calling a function passed from props
-    try {
-      const fetchedTask = controller.viewTask(searchQuery);
-      if (fetchedTask) {
-        setTask(fetchedTask);
-      } else {
-        throw new Error("Task not found");
-      }
-    } catch (error) {
-      console.error(error);
-      setErrorText(`Task with name "${searchQuery}" not Found`);
-      setShowError(true);
+  useEffect(() => {
+    const fetchedTask = controller.viewTask(input);
+    if (fetchedTask) {
+      setTask(fetchedTask);
+    } else {
+      setTask(null);
     }
+  }, [controller, input]);
 
-    // Reset the input field after submitting the form
-    setSearchQuery('');
-  };
   return (
-    <div>
-      <h2>FindTask View</h2>
-      <form onSubmit={handleFindTask}>
-        <input 
-          placeholder="Search Task" 
-          type="text"
-          value={searchQuery}
-          onChange={handleInputChange} />
-        <button type="submit">Search</button>
-      </form>
-      { task !== null && (
-        <div className='task-container'>
-        <div className='event'>
-          <div className='event-time'>{"Start Time: " + task?.startTime}</div>
-          <div className='event-details'>
-            <div className='event-title'>{"Event Name: " + task?.name}</div>
-            <div className='event-description'>{"Type of Task: " + task?.taskType}</div>
-          </div>
-        </div>
-      </div>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <TextField type='text' value={input} onChange={handleInputChange} fullWidth sx={{ mb: 3 }} />
+      {task && (
+        <Box width='90%'>
+          <Typography variant='h4'>{`${task.name} [${task.taskType}]`}</Typography>
+          <Typography variant='subtitle1' fontWeight={600}>
+            {task.constructor.name}
+          </Typography>
+
+          <Typography variant='body1'>{`Time: ${getTime(task.startTime)} - ${getTime(
+            task.startTime + task.duration
+          )}`}</Typography>
+          <Typography variant='body1'>
+            {`Date: ${getDate(task.startDate)}`}
+            {task instanceof RecurringTask && ` - ${getDate(task.endDate)}`}
+          </Typography>
+          {task instanceof RecurringTask && <Typography variant='body1'>{"Frequency: " + task.frequency}</Typography>}
+        </Box>
       )}
-
-      <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
-        <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
-          {errorText}
-        </Alert>
-      </Snackbar>
-
-    </div>
+      {!task && input === "" && <Typography>Enter a task name to search for a task...</Typography>}
+      {!task && input !== "" && <Typography>Unable to find task by the name "{input}"</Typography>}
+    </Box>
   );
 };
 

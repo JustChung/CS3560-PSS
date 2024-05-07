@@ -4,6 +4,7 @@ import Task from "../classes/Task";
 import { 
   Alert, 
   Button, 
+  Box,
   Container, 
   Divider, 
   FormControl, 
@@ -14,7 +15,8 @@ import {
   Slider, 
   Snackbar, 
   SnackbarCloseReason, 
-  TextField 
+  TextField,
+  Typography
 } from "@mui/material";
 import { useRadioGroupState } from "../hooks/useRadioGroupState";
 import PSSModel from "../classes/PSSModel";
@@ -151,111 +153,117 @@ const TaskView: React.FC<TaskViewProps> = ({ controller, model }) => {
 
 
   return (
-    <div>
-      <h2>Task View</h2>
-      <form onSubmit={handleFindTask}>
-        <input 
-          placeholder="Search Task" 
-          type="text"
-          value={searchQuery}
-          onChange={handleInputChange} />
-        <button type="submit">Search</button>
-      </form>
-      { task !== null && (
-        <div className='task-container'>
-        <div className='event'>
-          <div className='event-time'>{"Start Time: " + task?.startTime}</div>
-          <div className='event-details'>
-            <div className='event-title'>{"Event Name: " + task?.name}</div>
-            <div className='event-description'>{"Type of Task: " + task?.taskType}</div>
+    <Container>
+      <Box>
+        <Typography variant='h4' textAlign={'center'}>Task View</Typography>
+        <Divider sx={{ m: 2 }} />
+      </Box>
+
+      <div>
+        <h2>Task View</h2>
+        <form onSubmit={handleFindTask}>
+          <input 
+            placeholder="Search Task" 
+            type="text"
+            value={searchQuery}
+            onChange={handleInputChange} />
+          <button type="submit">Search</button>
+        </form>
+        { task !== null && (
+          <div className='task-container'>
+          <div className='event'>
+            <div className='event-time'>{"Start Time: " + task?.startTime}</div>
+            <div className='event-details'>
+              <div className='event-title'>{"Event Name: " + task?.name}</div>
+              <div className='event-description'>{"Type of Task: " + task?.taskType}</div>
+            </div>
           </div>
+
+          <Button onClick={handleEditTask} variant="contained" color="primary">
+            Edit
+          </Button>
+          <Button onClick={handleDeleteTask} variant="contained" color="error">
+            Delete
+          </Button>
+
+          { editClicked === 'True' && (
+            <FormControl>
+              <FormLabel>Type of Task</FormLabel>
+              <RadioGroup row onChange={setTaskClass} value={taskClass}>
+                <FormControlLabel value='transient' control={<Radio />} label='Transient Task' />
+                <FormControlLabel value='anti' control={<Radio />} label='Anti-Task' />
+                <FormControlLabel value='recurring' control={<Radio />} label='Recurring Task' />
+              </RadioGroup>
+
+              <Divider sx={{ m: 3 }} />
+              <FormLabel sx={{ mt: 1 }}>Task Name</FormLabel>
+              <TextField required value={name} onChange={setName} />
+              <FormLabel sx={{ mt: 1 }}>Task Type</FormLabel>
+              <RadioGroup row onChange={setTaskType} value={taskType}>
+                {taskTypeOptions.map((taskType) => (
+                  <FormControlLabel value={taskType} control={<Radio />} label={taskType} />
+                ))}
+              </RadioGroup>
+
+              <Divider sx={{ m: 3 }} />
+              <FormLabel sx={{ mt: 1 }}>Start Time</FormLabel>
+              <TextField inputMode='numeric' value={startTime} onChange={setStartTime} />
+              <FormLabel sx={{ mt: 1 }}>Duration (hours)</FormLabel>
+              <Slider
+                defaultValue={1}
+                step={0.25}
+                valueLabelDisplay='on'
+                min={0.25}
+                max={3}
+                value={duration}
+                onChange={setDuration}
+              />
+
+              <Divider sx={{ m: 3 }} />
+              <FormLabel sx={{ mt: 1 }}>Start Date</FormLabel>
+              <TextField inputMode='numeric' value={startDate} onChange={setStartDate} />
+              {taskClass === "recurring" && (
+                <>
+                  <FormLabel sx={{ mt: 1 }}>End Date</FormLabel>
+                  <TextField inputMode='numeric' value={endDate} onChange={setEndDate} />
+                </>
+              )}
+
+              {taskClass === "recurring" && (
+                <>
+                  <Divider sx={{ m: 3 }} />
+                  <FormLabel sx={{ mt: 1 }}>Frequency</FormLabel>
+                  <RadioGroup row onChange={setFrequency} value={frequency}>
+                    <FormControlLabel value={Frequency.Daily} control={<Radio />} label='Daily' />
+                    <FormControlLabel value={Frequency.Weekly} control={<Radio />} label='Weekly' />
+                    <FormControlLabel value={Frequency.Monthly} control={<Radio />} label='Monthly' />
+                  </RadioGroup>
+                </>
+              )}
+
+              <Button onClick={editTask}>
+                <p>Edit Task</p>
+              </Button>
+              <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
+                <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
+                  {errorText}
+                </Alert>
+              </Snackbar>
+            </FormControl>
+
+          )}
         </div>
-
-        <Button onClick={handleEditTask} variant="contained" color="primary">
-          Edit
-        </Button>
-        <Button onClick={handleDeleteTask} variant="contained" color="error">
-          Delete
-        </Button>
-
-        { editClicked === 'True' && (
-          <Container>
-          <FormControl>
-            <FormLabel>Type of Task</FormLabel>
-            <RadioGroup row onChange={setTaskClass} value={taskClass}>
-              <FormControlLabel value='transient' control={<Radio />} label='Transient Task' />
-              <FormControlLabel value='anti' control={<Radio />} label='Anti-Task' />
-              <FormControlLabel value='recurring' control={<Radio />} label='Recurring Task' />
-            </RadioGroup>
-
-            <Divider sx={{ m: 3 }} />
-            <FormLabel sx={{ mt: 1 }}>Task Name</FormLabel>
-            <TextField required value={name} onChange={setName} />
-            <FormLabel sx={{ mt: 1 }}>Task Type</FormLabel>
-            <RadioGroup row onChange={setTaskType} value={taskType}>
-              {taskTypeOptions.map((taskType) => (
-                <FormControlLabel value={taskType} control={<Radio />} label={taskType} />
-              ))}
-            </RadioGroup>
-
-            <Divider sx={{ m: 3 }} />
-            <FormLabel sx={{ mt: 1 }}>Start Time</FormLabel>
-            <TextField inputMode='numeric' value={startTime} onChange={setStartTime} />
-            <FormLabel sx={{ mt: 1 }}>Duration (hours)</FormLabel>
-            <Slider
-              defaultValue={1}
-              step={0.25}
-              valueLabelDisplay='on'
-              min={0.25}
-              max={3}
-              value={duration}
-              onChange={setDuration}
-            />
-
-            <Divider sx={{ m: 3 }} />
-            <FormLabel sx={{ mt: 1 }}>Start Date</FormLabel>
-            <TextField inputMode='numeric' value={startDate} onChange={setStartDate} />
-            {taskClass === "recurring" && (
-              <>
-                <FormLabel sx={{ mt: 1 }}>End Date</FormLabel>
-                <TextField inputMode='numeric' value={endDate} onChange={setEndDate} />
-              </>
-            )}
-
-            {taskClass === "recurring" && (
-              <>
-                <Divider sx={{ m: 3 }} />
-                <FormLabel sx={{ mt: 1 }}>Frequency</FormLabel>
-                <RadioGroup row onChange={setFrequency} value={frequency}>
-                  <FormControlLabel value={Frequency.Daily} control={<Radio />} label='Daily' />
-                  <FormControlLabel value={Frequency.Weekly} control={<Radio />} label='Weekly' />
-                  <FormControlLabel value={Frequency.Monthly} control={<Radio />} label='Monthly' />
-                </RadioGroup>
-              </>
-            )}
-
-            <Button onClick={editTask}>
-              <p>Edit Task</p>
-            </Button>
-            <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
-              <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
-                {errorText}
-              </Alert>
-            </Snackbar>
-          </FormControl>
-          </Container>
-
         )}
+
+        <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
+          <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
+            {errorText}
+          </Alert>
+        </Snackbar>
+
+        
       </div>
-      )}
-
-      <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
-        <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
-          {errorText}
-        </Alert>
-      </Snackbar>
-
-    </div>
+    </Container>
   );
 };
 

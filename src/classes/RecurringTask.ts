@@ -1,6 +1,6 @@
 import Task from "./Task";
-import { getDigit, getDaysInMonth } from "../utils";
 import { AntiTask } from "./AntiTask";
+import { getDigit, getDaysInMonth } from "../utils";
 
 export enum RecurringTaskType {
   Class = "Class",

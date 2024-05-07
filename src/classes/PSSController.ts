@@ -1,8 +1,8 @@
-import { AntiTaskType } from "./AntiTask";
 import PSSModel from "./PSSModel";
-import { Frequency, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
 import { TransientTaskType } from "./TransientTask";
+import { AntiTaskType } from "./AntiTask";
+import { Frequency, RecurringTaskType } from "./RecurringTask";
 
 export default class PSSController {
   pss: PSSModel;
@@ -41,9 +41,9 @@ export default class PSSController {
   printTasks(): void {
     this.pss.printTasks();
   }
-
-  deleteTask(name: string): void {
-    this.pss.deleteTask(name);
+  
+  deleteTask(name: string): string | void {
+    return this.pss.deleteTask(name);
   }
 
   viewTask(name: string): Task | undefined {

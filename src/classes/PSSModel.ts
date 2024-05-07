@@ -1,9 +1,16 @@
-import { getDateTime, dayOfTheWeek, getDigit, getDayOfMonth, getDaysInMonth, numberToFrequency } from "../utils";
-import { AntiTask, AntiTaskType } from "./AntiTask";
 import PSSController from "./PSSController";
-import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
 import Task from "./Task";
 import { TransientTask, TransientTaskType } from "./TransientTask";
+import { AntiTask, AntiTaskType } from "./AntiTask";
+import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
+import { 
+  getDateTime, 
+  dayOfTheWeek, 
+  getDigit,
+  getDayOfMonth, 
+  getDaysInMonth, 
+  numberToFrequency 
+} from "../utils";
 import { saveAs } from "file-saver";
 
 export default class PSSModel {
@@ -56,6 +63,7 @@ export default class PSSModel {
           endDate!,
           frequency!
         );
+        console.log("apeending", recurringTask);
         recurringTask.appendTo(this.tasks);
         break;
       }
@@ -68,10 +76,38 @@ export default class PSSModel {
     return this.tasks.find((task) => task.name === name);
   }
 
-  deleteTask(name: string): void {
-    // TODO (luciano): I don't think this was implemented properly, .filter doesn't modify the existing array
+  deleteTask(name: string): string | void {
+    const taskToDelete = this.getTask(name);
+  
+    if (taskToDelete instanceof AntiTask) {
+      const overlapTasks = this.tasks.filter((task) =>
+        task.taskType !== "Cancellation" &&
+        task.startDate === taskToDelete.startDate &&
+        task.startTime === taskToDelete.startTime
+      );
+  
+      if (overlapTasks.length > 1) {
+        return `Deleting this anti-task creates an overlap between tasks: ${overlapTasks[0].name} and ${overlapTasks[1].name}.`;
+      }
+    }
+  
+    if (taskToDelete instanceof RecurringTask) {
+      const relatedAntiTask = this.tasks.find((task) =>
+        task.taskType === "Cancellation" &&
+        task.startDate === taskToDelete.startDate &&
+        task.startTime === taskToDelete.startTime
+      );
+  
+      if (relatedAntiTask) {
+        this.tasks = this.tasks.filter((task) =>
+          !(task.taskType === "Cancellation" &&
+            task.startDate === taskToDelete.startDate &&
+            task.startTime === taskToDelete.startTime)
+        );
+      }
+    }
+  
     this.tasks = this.tasks.filter((task) => task.name !== name);
-    // TODO (luciano): when deleting recurring task, delete all corresponding anti-tasks as well
   }
 
   verifyUniqueName(name: string): boolean {
