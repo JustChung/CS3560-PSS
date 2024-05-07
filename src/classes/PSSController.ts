@@ -2,7 +2,7 @@ import PSSModel from "./PSSModel";
 import Task from "./Task";
 import { TransientTaskType } from "./TransientTask";
 import { AntiTaskType } from "./AntiTask";
-import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
+import { Frequency, RecurringTaskType } from "./RecurringTask";
 
 export default class PSSController {
   pss: PSSModel;

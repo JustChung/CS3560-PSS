@@ -76,7 +76,7 @@ export default class PSSModel {
     return this.tasks.find((task) => task.name === name);
   }
 
-  deleteTask(name: string): String | void {
+  deleteTask(name: string): string | void {
     // TODO (luciano): I don't think this was implemented properly, .filter doesn't modify the existing array
     const taskToDelete = this.getTask(name)
     if (taskToDelete instanceof AntiTask) {
