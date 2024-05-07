@@ -128,7 +128,7 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
           />
 
           <Divider sx={{ m: 3 }} />
-          <DatePicker label='Start Time' sx={{ mt: 1 }} value={startDate} onChange={setStartDate} />
+          <DatePicker label='Start Date' sx={{ mt: 1 }} value={startDate} onChange={setStartDate} />
           {taskClass === "recurring" && <DatePicker value={endDate} onChange={setEndDate} />}
 
           {taskClass === "recurring" && (
