@@ -82,7 +82,7 @@ export default class PSSModel {
     if (taskToDelete instanceof AntiTask) {
       const overlapTasks = this.tasks.filter((task) => task.taskType !== "Cancellation" && task.startDate===taskToDelete.startDate 
         && task.startTime===taskToDelete.startTime);
-      if (overlapTasks) {
+      if (overlapTasks.length > 1) {
         return `Deleting this anti-task creates an overlap between tasks: ${overlapTasks[0].name} and ${overlapTasks[1].name}.`
       }
     }

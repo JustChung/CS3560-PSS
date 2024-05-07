@@ -38,8 +38,8 @@ export default class PSSController {
     return true;
   }
 
-  deleteTask(name: string): void {
-    this.pss.deleteTask(name);
+  deleteTask(name: string): string | void {
+    return this.pss.deleteTask(name);
   }
 
   viewTask(name: string): Task | undefined {
