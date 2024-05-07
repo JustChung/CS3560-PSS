@@ -30,17 +30,35 @@ const getTaskColor = (task: TransientTask | RecurringTask, tasks: Task[]): ChipO
   return "primary";
 };
 
-const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask; tasks: Task[] }) => {
-  const hasAntiTask = tasks.some(
-    (aTask) =>
-      aTask instanceof AntiTask &&
-      aTask.startDate === task.startDate &&
-      aTask.startTime === task.startTime &&
-      aTask.duration === task.duration
-  );
+const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiTask; tasks: Task[] }) => {
+  let filteredTasks = tasks;
 
-  if (hasAntiTask) {
-    return null;
+  if (task instanceof RecurringTask) {
+    const associatedAntiTaskIndex = tasks.findIndex(
+      (aTask) =>
+        aTask instanceof AntiTask &&
+        aTask.startDate === task.startDate &&
+        aTask.startTime === task.startTime &&
+        aTask.duration === task.duration
+    );
+
+    if (associatedAntiTaskIndex !== -1) {
+      filteredTasks = filteredTasks.filter((aTask, index) => index !== associatedAntiTaskIndex && aTask !== task);
+      return null;
+    }
+  } else if (task instanceof AntiTask) {
+    const associatedRecurringTaskIndex = tasks.findIndex(
+      (aTask) =>
+        aTask instanceof RecurringTask &&
+        aTask.startDate === task.startDate &&
+        aTask.startTime === task.startTime &&
+        aTask.duration === task.duration
+    );
+
+    if (associatedRecurringTaskIndex !== -1) {
+      filteredTasks = filteredTasks.filter((aTask, index) => index !== associatedRecurringTaskIndex && aTask !== task);
+      return null;
+    }
   }
 
   return (
