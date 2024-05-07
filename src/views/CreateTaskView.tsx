@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PSSController from "../classes/PSSController";
 import {
   Alert,
@@ -15,15 +15,15 @@ import {
   SnackbarCloseReason,
   TextField,
 } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { useRadioGroupState } from "../hooks/useRadioGroupState";
+import { useTextFieldState } from "../hooks/useTextFieldState";
+import { useSliderState } from "../hooks/useSliderState";
+import { useTimePicker } from "../hooks/useTimePicker";
 import { TransientTaskType } from "../classes/TransientTask";
 import { AntiTaskType } from "../classes/AntiTask";
 import { Frequency, RecurringTaskType } from "../classes/RecurringTask";
-import { useTextFieldState } from "../hooks/useTextFieldState";
-import { useSliderState } from "../hooks/useSliderState";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
-import { useTimePicker } from "../hooks/useTimePicker";
 import dayjs from "dayjs";
 
 interface CreateTaskViewProps {
@@ -63,8 +63,12 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
 
   const [showError, setShowError] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
   const hideError = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
     if (reason !== "clickaway") setShowError(false);
+  }, []);
+  const hideSuccess = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
+    if (reason !== "clickaway") setShowSuccess(false);
   }, []);
 
   const createTask = useCallback(() => {
@@ -81,6 +85,10 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
     if (result !== true) {
       setErrorText(result);
       setShowError(true);
+      setShowSuccess(false);
+    } else {
+      setShowError(false);
+      setShowSuccess(true);
     }
     controller.pss.printTasks();
   }, [controller, duration, endDate, frequency, name, startDate, startTime, taskClass, taskType]);
@@ -121,12 +129,12 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
 
           <Divider sx={{ m: 3 }} />
           <DatePicker label='Start Date' sx={{ mt: 1 }} value={startDate} onChange={setStartDate} />
-          {taskClass === "recurring" && <DatePicker value={endDate} onChange={setEndDate} />}
+          {taskClass === "recurring" && <DatePicker label='End Date' value={endDate} onChange={setEndDate} sx={{ mt: 3 }} />}
 
           {taskClass === "recurring" && (
             <>
               <Divider sx={{ m: 3 }} />
-              <FormLabel sx={{ mt: 1 }}>Frequency</FormLabel>
+              <FormLabel>Frequency</FormLabel>
               <RadioGroup row onChange={setFrequency} value={frequency}>
                 <FormControlLabel value={Frequency.Daily} control={<Radio />} label='Daily' />
                 <FormControlLabel value={Frequency.Weekly} control={<Radio />} label='Weekly' />
@@ -135,12 +143,17 @@ const CreateTaskView: React.FC<CreateTaskViewProps> = ({ controller }) => {
             </>
           )}
 
-          <Button onClick={createTask}>
+          <Button onClick={createTask} sx={{ mt: 1.5 }}>
             <p>Create Task</p>
           </Button>
           <Snackbar open={showError} autoHideDuration={6000} onClose={hideError}>
             <Alert severity='error' variant='filled' sx={{ width: "100%" }}>
               {errorText}
+            </Alert>
+          </Snackbar>
+          <Snackbar open={showSuccess} autoHideDuration={6000} onClose={hideSuccess}>
+            <Alert severity='success' variant='filled' sx={{ width: "100%" }}>
+              Task created successfully!
             </Alert>
           </Snackbar>
         </FormControl>

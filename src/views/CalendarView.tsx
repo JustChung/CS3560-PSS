@@ -1,13 +1,21 @@
-import { Calendar } from "rsuite";
-import PSSController from "../classes/PSSController";
 import { useState, useCallback } from "react";
-import { getTime } from "../utils";
+import PSSController from "../classes/PSSController";
+import { Calendar } from "rsuite";
+import { 
+  Button, 
+  Chip, 
+  ChipOwnProps, 
+  Popover, 
+  Stack, 
+  Typography 
+} from "@mui/material";
 import { useForceRerender } from "../hooks/useForceRerender";
-import { Button, Chip, ChipOwnProps, Popover, Stack, Typography } from "@mui/material";
 import Task from "../classes/Task";
 import { TransientTask } from "../classes/TransientTask";
 import { AntiTask } from "../classes/AntiTask";
 import { RecurringTask } from "../classes/RecurringTask";
+import { getTime } from "../utils";
+import "rsuite/Calendar/styles/index.css";
 
 const getTaskColor = (task: TransientTask | RecurringTask, tasks: Task[]): ChipOwnProps["color"] => {
   if (task instanceof TransientTask) {
