@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import ScheduleView from "./ScheduleView";
 import TaskView from "./TaskView";
-import FindTaskView from "./FindTaskView";
 import CreateTaskView from "./CreateTaskView";
 import WriteReadScheduleView from "./WriteReadScheduleView";
 import { CalendarView } from "./CalendarView";
@@ -37,9 +36,8 @@ const MainView: React.FC<MainViewProps> = ({ controller }) => {
                 scrollButtons='auto'>
                 <Tab label='View Schedule' value='1' />
                 <Tab label='Task View' value='2' />
-                <Tab label='Find Task' value='3' />
-                <Tab label='Create Task' value='4' />
-                <Tab label='Save/Read Schedules' value='5' />
+                <Tab label='Create Task' value='3' />
+                <Tab label='Save/Read Schedules' value='4' />
               </TabList>
             </Box>
             <TabPanel value='1'>
@@ -49,12 +47,9 @@ const MainView: React.FC<MainViewProps> = ({ controller }) => {
               <TaskView controller={controller} />
             </TabPanel>
             <TabPanel value='3'>
-              <FindTaskView controller={controller} />
-            </TabPanel>
-            <TabPanel value='4'>
               <CreateTaskView controller={controller} />
             </TabPanel>
-            <TabPanel value='5'>
+            <TabPanel value='4'>
               <WriteReadScheduleView controller={controller} />
             </TabPanel>
           </TabContext>
