@@ -232,14 +232,26 @@ export default class PSSModel {
 
   writeScheduleToFile(fileName: string): void {
     try {
-      const scheduleData = JSON.stringify(this.tasks);
+      // Convert tasks to an array of tasks
+      const tasksArray = Object.values(this.tasks);
+      
+      // Convert tasks array to prettified JSON string with 2 spaces indentation
+      const scheduleData = JSON.stringify(tasksArray, null, 2);
+  
+      // Create a Blob from the JSON data
       const blob = new Blob([scheduleData], { type: "application/json" });
+  
+      // Save the blob as a file
       saveAs(blob, fileName);
+  
+      // Log success message
       console.log(`Schedule saved to file '${fileName}' successfully.`);
     } catch (error) {
+      // Log error message if an exception occurs
       console.error(`Error saving schedule to file '${fileName}':`, error);
     }
   }
+  
 
   getSchedule(startDate: number, type: "day" | "week" | "month" | "calendar"): Task[] {
     let newStartDate = startDate;
