@@ -1,11 +1,14 @@
+import React, { useState } from "react";
 import PSSController from "../classes/PSSController";
-import { Box, Button, Stack } from "@mui/material";
+import { Box, Button, Stack, TextField } from "@mui/material";
 
 interface WriteReadScheduleViewProps {
   controller: PSSController;
 }
 
 const WriteReadScheduleView: React.FC<WriteReadScheduleViewProps> = ({ controller }) => {
+  const [fileName, setFileName] = useState("");
+
   const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -14,7 +17,16 @@ const WriteReadScheduleView: React.FC<WriteReadScheduleViewProps> = ({ controlle
   };
 
   const handleExportSchedule = () => {
-    controller.outputScheduleToFile("schedule.json");
+    if (!fileName) {
+      alert("Please enter a file name.");
+      return;
+    }
+    controller.outputScheduleToFile(fileName + ".json");
+    setFileName(""); // Clearing the file name input after export
+  };
+
+  const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFileName(event.target.value);
   };
 
   return (
@@ -26,6 +38,13 @@ const WriteReadScheduleView: React.FC<WriteReadScheduleViewProps> = ({ controlle
             Upload File
           </Button>
         </label>
+        <TextField
+          id="file-name"
+          label="File Name"
+          variant="outlined"
+          value={fileName}
+          onChange={handleFileNameChange}
+        />
         <Button variant='outlined' onClick={handleExportSchedule}>
           Export Schedule
         </Button>
