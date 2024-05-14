@@ -230,10 +230,15 @@ export default class PSSModel {
     return true;
   }
 
-  writeScheduleToFile(fileName: string): void {
+  writeScheduleToFile(fileName: string, startDate: number, type: "day" | "week" | "month" | "whole"): void {
     try {
       // Convert tasks to an array of tasks
-      const tasksArray = Object.values(this.tasks);
+      let tasksArray;
+      if (type !== "whole") {
+        tasksArray = Object.values(this.getSchedule(startDate, type));
+      } else {
+        tasksArray = Object.values(this.tasks);
+      }
   
       // Filter out recurring tasks canceled out by anti-tasks
       const filteredRecurringTasks = tasksArray.filter(task => {
@@ -337,13 +342,6 @@ export default class PSSModel {
       // TODO (luciano) this doesn't work with recurring tasks
       return task.startDate >= newStartDate && task.startDate < endDate;
     });
-  }
-
-  writePartialScheduleToFile(fileName: string, startDate: number, type: "day" | "week" | "month"): void {
-    // NEED TO IMPLEMENT
-    fileName;
-    startDate;
-    type;
   }
 
   readScheduleFromFile(file: File): void {
