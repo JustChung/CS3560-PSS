@@ -234,31 +234,48 @@ export default class PSSModel {
     try {
       // Convert tasks to an array of tasks
       const tasksArray = Object.values(this.tasks);
-      
+  
+      // Filter out recurring tasks canceled out by anti-tasks
+      const filteredRecurringTasks = tasksArray.filter(task => {
+        if (task instanceof RecurringTask) {
+          // Check if there exists an anti-task that cancels this recurring task
+          const antiTaskExists = tasksArray.some(antiTask =>
+            antiTask instanceof AntiTask &&
+            antiTask.startDate === task.startDate &&
+            antiTask.startTime === task.startTime &&
+            antiTask.duration === task.duration
+          );
+          return !antiTaskExists; // Keep the recurring task if no corresponding anti-task is found
+        }
+        return true; // Keep non-recurring tasks
+      });
+
+      const filteredRecurringTasksWithoutAntiTasks = filteredRecurringTasks.filter(task => !(task instanceof AntiTask));
+  
       // Modify keys and values as needed
-    const modifiedTasks = tasksArray.map(task => {
-      if (task instanceof RecurringTask) {
-        // Format RecurringTask differently
-        return {
-          Name: task.name,
-          Type: task.taskType,
-          StartDate: task.startDate,
-          StartTime: task.startTime,
-          Duration: task.duration,
-          EndDate: task.endDate,
-          Frequency: task.frequency
-        };
-      } else {
-        // Format other tasks (Transient tasks) differently
-        return {
-          Name: task.name,
-          Type: task.taskType,
-          Date: task.startDate,
-          StartTime: task.startTime,
-          Duration: task.duration
-        };
-      }
-    });
+      const modifiedTasks = filteredRecurringTasksWithoutAntiTasks.map(task => {
+        if (task instanceof RecurringTask) {
+          // Format RecurringTask differently
+          return {
+            Name: task.name,
+            Type: task.taskType,
+            StartDate: task.startDate,
+            StartTime: task.startTime,
+            Duration: task.duration,
+            EndDate: task.endDate,
+            Frequency: task.frequency
+          };
+        } else {
+          // Format other tasks (Transient tasks) differently
+          return {
+            Name: task.name,
+            Type: task.taskType,
+            Date: task.startDate,
+            StartTime: task.startTime,
+            Duration: task.duration
+          };
+        }
+      });
   
       // Convert tasks array to prettified JSON string with 2 spaces indentation
       const scheduleData = JSON.stringify(modifiedTasks, null, 2);
