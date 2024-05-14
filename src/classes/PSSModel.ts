@@ -235,8 +235,33 @@ export default class PSSModel {
       // Convert tasks to an array of tasks
       const tasksArray = Object.values(this.tasks);
       
+      // Modify keys and values as needed
+    const modifiedTasks = tasksArray.map(task => {
+      if (task instanceof RecurringTask) {
+        // Format RecurringTask differently
+        return {
+          Name: task.name,
+          Type: task.taskType,
+          StartDate: task.startDate,
+          StartTime: task.startTime,
+          Duration: task.duration,
+          EndDate: task.endDate,
+          Frequency: task.frequency
+        };
+      } else {
+        // Format other tasks (Transient tasks) differently
+        return {
+          Name: task.name,
+          Type: task.taskType,
+          Date: task.startDate,
+          StartTime: task.startTime,
+          Duration: task.duration
+        };
+      }
+    });
+  
       // Convert tasks array to prettified JSON string with 2 spaces indentation
-      const scheduleData = JSON.stringify(tasksArray, null, 2);
+      const scheduleData = JSON.stringify(modifiedTasks, null, 2);
   
       // Create a Blob from the JSON data
       const blob = new Blob([scheduleData], { type: "application/json" });
@@ -251,6 +276,7 @@ export default class PSSModel {
       console.error(`Error saving schedule to file '${fileName}':`, error);
     }
   }
+  
   
 
   getSchedule(startDate: number, type: "day" | "week" | "month" | "calendar"): Task[] {
