@@ -251,6 +251,21 @@ export default class PSSModel {
       });
 
       const filteredRecurringTasksWithoutAntiTasks = filteredRecurringTasks.filter(task => !(task instanceof AntiTask));
+
+      // Sort the array by startDate
+      filteredRecurringTasksWithoutAntiTasks.sort((a, b) => {
+        // Convert the numbers to strings for comparison
+        const startDateA = a.startDate.toString();
+        const startDateB = b.startDate.toString();
+
+        if (startDateA < startDateB) {
+            return -1;
+        }
+        if (startDateA > startDateB) {
+            return 1;
+        }
+        return 0;
+      });
   
       // Modify keys and values as needed
       const modifiedTasks = filteredRecurringTasksWithoutAntiTasks.map(task => {
