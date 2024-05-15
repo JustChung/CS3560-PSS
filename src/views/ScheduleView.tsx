@@ -46,7 +46,7 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
     }
 
     const numericStartDate = parseInt(startDate.format("YYYYMMDD"));
-    controller.writePartialScheduleToFile(fileName, numericStartDate, scheduleType)
+    controller.writeScheduleToFile(fileName, numericStartDate, scheduleType)
     setFileName(""); // Clearing the file name input after export
   }
 
