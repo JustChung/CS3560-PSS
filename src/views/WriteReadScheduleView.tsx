@@ -39,7 +39,7 @@ const WriteReadScheduleView: React.FC<WriteReadScheduleViewProps> = ({ controlle
 
   return (
     <Box>
-      <Typography variant='h4' textAlign={'center'}>Export Schedule</Typography>
+      <Typography variant='h4' textAlign={'center'}>Import Schedule</Typography>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: 'center', mt: 2, mb: 3 }}>
         <input type='file' onChange={handleFileInputChange} id='file-input' style={{ display: "none" }} />
         <label htmlFor='file-input'>
