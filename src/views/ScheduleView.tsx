@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import PSSController from "../classes/PSSController";
-import { Alert, Box, Button, Container, Divider, MenuItem, Select, Snackbar, SnackbarCloseReason, Typography } from "@mui/material";
+import { Alert, Box, Button, Container, Divider, MenuItem, Select, Snackbar, SnackbarCloseReason, TextField, Typography } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -18,6 +18,7 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
   const [scheduleType, setScheduleType] = useState<"day" | "week" | "month">("day");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showDeleted, setShowDeleted] = useState(false);
+  const [fileName, setFileName] = useState("");
   const hideDeleted = useCallback((_ev: unknown, reason: SnackbarCloseReason) => {
     if (reason !== "clickaway") setShowDeleted(false);
   }, []);
@@ -33,6 +34,21 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
     setShowDeleted(true);
     handleViewSchedule();
   };
+
+  const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFileName(event.target.value);
+  };
+  
+  const handleExportPartialSchedule = () => {
+    if (!fileName) {
+      alert("Please enter a file name.");
+      return;
+    }
+
+    const numericStartDate = parseInt(startDate.format("YYYYMMDD"));
+    controller.writeScheduleToFile(fileName, numericStartDate, scheduleType)
+    setFileName(""); // Clearing the file name input after export
+  }
 
   useEffect(() => {
     handleViewSchedule();
@@ -68,6 +84,19 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ controller }) => {
             {index !== tasks.length - 1 && <Divider sx={{ m: 2 }}/>}
           </Container>
         ))}
+        {tasks.length > 0 && (
+          <Box>
+            <Button variant='outlined' sx={{ width: 275, height: 40, mt: 0.5 }} onClick={() => handleExportPartialSchedule()}>Export Partial Schedule</Button>
+            <TextField
+              id="file-name"
+              label="File Name"
+              variant="outlined"
+              value={fileName}
+              onChange={handleFileNameChange}
+              sx={{ width: 275, mt: 0.7 }}
+            />
+          </Box>
+        )}
       </Box>
       <Snackbar open={showDeleted} autoHideDuration={6000} onClose={hideDeleted}>
         <Alert severity='error' variant='filled' sx={{ width: "100%" }}>

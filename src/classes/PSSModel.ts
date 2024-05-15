@@ -230,16 +230,91 @@ export default class PSSModel {
     return true;
   }
 
-  writeScheduleToFile(fileName: string): void {
+  writeScheduleToFile(fileName: string, startDate: number, type: "day" | "week" | "month" | "whole"): void {
     try {
-      const scheduleData = JSON.stringify(this.tasks);
+      // Convert tasks to an array of tasks
+      let tasksArray;
+      if (type !== "whole") {
+        tasksArray = Object.values(this.getSchedule(startDate, type));
+      } else {
+        tasksArray = Object.values(this.tasks);
+      }
+  
+      // Filter out recurring tasks canceled out by anti-tasks
+      const filteredRecurringTasks = tasksArray.filter(task => {
+        if (task instanceof RecurringTask) {
+          // Check if there exists an anti-task that cancels this recurring task
+          const antiTaskExists = tasksArray.some(antiTask =>
+            antiTask instanceof AntiTask &&
+            antiTask.startDate === task.startDate &&
+            antiTask.startTime === task.startTime &&
+            antiTask.duration === task.duration
+          );
+          return !antiTaskExists; // Keep the recurring task if no corresponding anti-task is found
+        }
+        return true; // Keep non-recurring tasks
+      });
+
+      const filteredRecurringTasksWithoutAntiTasks = filteredRecurringTasks.filter(task => !(task instanceof AntiTask));
+
+      // Sort the array by startDate
+      filteredRecurringTasksWithoutAntiTasks.sort((a, b) => {
+        // Convert the numbers to strings for comparison
+        const startDateA = a.startDate.toString();
+        const startDateB = b.startDate.toString();
+
+        if (startDateA < startDateB) {
+            return -1;
+        }
+        if (startDateA > startDateB) {
+            return 1;
+        }
+        return 0;
+      });
+  
+      // Modify keys and values as needed
+      const modifiedTasks = filteredRecurringTasksWithoutAntiTasks.map(task => {
+        if (task instanceof RecurringTask) {
+          // Format RecurringTask differently
+          return {
+            Name: task.name,
+            Type: task.taskType,
+            StartDate: task.startDate,
+            StartTime: task.startTime,
+            Duration: task.duration,
+            EndDate: task.endDate,
+            Frequency: task.frequency
+          };
+        } else {
+          // Format other tasks (Transient tasks) differently
+          return {
+            Name: task.name,
+            Type: task.taskType,
+            Date: task.startDate,
+            StartTime: task.startTime,
+            Duration: task.duration
+          };
+        }
+      });
+  
+      // Convert tasks array to prettified JSON string with 2 spaces indentation
+      const scheduleData = JSON.stringify(modifiedTasks, null, 2);
+  
+      // Create a Blob from the JSON data
       const blob = new Blob([scheduleData], { type: "application/json" });
+  
+      // Save the blob as a file
       saveAs(blob, fileName);
+  
+      // Log success message
       console.log(`Schedule saved to file '${fileName}' successfully.`);
     } catch (error) {
+      // Log error message if an exception occurs
       console.error(`Error saving schedule to file '${fileName}':`, error);
     }
   }
+  
+  
 
   getSchedule(startDate: number, type: "day" | "week" | "month" | "calendar"): Task[] {
     let newStartDate = startDate;
@@ -267,13 +342,6 @@ export default class PSSModel {
       // TODO (luciano) this doesn't work with recurring tasks
       return task.startDate >= newStartDate && task.startDate < endDate;
     });
-  }
-
-  writePartialScheduleToFile(fileName: string, startDate: number, type: "day" | "week" | "month"): void {
-    // NEED TO IMPLEMENT
-    fileName;
-    startDate;
-    type;
   }
 
   readScheduleFromFile(file: File): void {
