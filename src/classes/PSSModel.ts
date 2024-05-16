@@ -3,15 +3,9 @@ import Task from "./Task";
 import { TransientTask, TransientTaskType } from "./TransientTask";
 import { AntiTask, AntiTaskType } from "./AntiTask";
 import { Frequency, RecurringTask, RecurringTaskType } from "./RecurringTask";
-import { 
-  getDateTime, 
-  dayOfTheWeek, 
-  getDigit,
-  getDayOfMonth, 
-  getDaysInMonth, 
-  numberToFrequency 
-} from "../utils";
+import { getDateTime, dayOfTheWeek, getDigit, getDayOfMonth, getDaysInMonth, numberToFrequency } from "../utils";
 import { saveAs } from "file-saver";
+import { AntiObject, TransientObject, decodeJSON } from "../jsonCodec";
 
 export default class PSSModel {
   private controller: PSSController | null;
@@ -78,35 +72,40 @@ export default class PSSModel {
 
   deleteTask(name: string): string | void {
     const taskToDelete = this.getTask(name);
-  
+
     if (taskToDelete instanceof AntiTask) {
-      const overlapTasks = this.tasks.filter((task) =>
-        task.taskType !== "Cancellation" &&
-        task.startDate === taskToDelete.startDate &&
-        task.startTime === taskToDelete.startTime
+      const overlapTasks = this.tasks.filter(
+        (task) =>
+          task.taskType !== "Cancellation" &&
+          task.startDate === taskToDelete.startDate &&
+          task.startTime === taskToDelete.startTime
       );
-  
+
       if (overlapTasks.length > 1) {
         return `Deleting this anti-task creates an overlap between tasks: ${overlapTasks[0].name} and ${overlapTasks[1].name}.`;
       }
     }
-  
+
     if (taskToDelete instanceof RecurringTask) {
-      const relatedAntiTask = this.tasks.find((task) =>
-        task.taskType === "Cancellation" &&
-        task.startDate === taskToDelete.startDate &&
-        task.startTime === taskToDelete.startTime
+      const relatedAntiTask = this.tasks.find(
+        (task) =>
+          task.taskType === "Cancellation" &&
+          task.startDate === taskToDelete.startDate &&
+          task.startTime === taskToDelete.startTime
       );
-  
+
       if (relatedAntiTask) {
-        this.tasks = this.tasks.filter((task) =>
-          !(task.taskType === "Cancellation" &&
-            task.startDate === taskToDelete.startDate &&
-            task.startTime === taskToDelete.startTime)
+        this.tasks = this.tasks.filter(
+          (task) =>
+            !(
+              task.taskType === "Cancellation" &&
+              task.startDate === taskToDelete.startDate &&
+              task.startTime === taskToDelete.startTime
+            )
         );
       }
     }
-  
+
     this.tasks = this.tasks.filter((task) => task.name !== name);
   }
 
@@ -239,23 +238,26 @@ export default class PSSModel {
       } else {
         tasksArray = Object.values(this.tasks);
       }
-  
+
       // Filter out recurring tasks canceled out by anti-tasks
-      const filteredRecurringTasks = tasksArray.filter(task => {
+      const filteredRecurringTasks = tasksArray.filter((task) => {
         if (task instanceof RecurringTask) {
           // Check if there exists an anti-task that cancels this recurring task
-          const antiTaskExists = tasksArray.some(antiTask =>
-            antiTask instanceof AntiTask &&
-            antiTask.startDate === task.startDate &&
-            antiTask.startTime === task.startTime &&
-            antiTask.duration === task.duration
+          const antiTaskExists = tasksArray.some(
+            (antiTask) =>
+              antiTask instanceof AntiTask &&
+              antiTask.startDate === task.startDate &&
+              antiTask.startTime === task.startTime &&
+              antiTask.duration === task.duration
           );
           return !antiTaskExists; // Keep the recurring task if no corresponding anti-task is found
         }
         return true; // Keep non-recurring tasks
       });
 
-      const filteredRecurringTasksWithoutAntiTasks = filteredRecurringTasks.filter(task => !(task instanceof AntiTask));
+      const filteredRecurringTasksWithoutAntiTasks = filteredRecurringTasks.filter(
+        (task) => !(task instanceof AntiTask)
+      );
 
       // Sort the array by startDate
       filteredRecurringTasksWithoutAntiTasks.sort((a, b) => {
@@ -264,16 +266,16 @@ export default class PSSModel {
         const startDateB = b.startDate.toString();
 
         if (startDateA < startDateB) {
-            return -1;
+          return -1;
         }
         if (startDateA > startDateB) {
-            return 1;
+          return 1;
         }
         return 0;
       });
-  
+
       // Modify keys and values as needed
-      const modifiedTasks = filteredRecurringTasksWithoutAntiTasks.map(task => {
+      const modifiedTasks = filteredRecurringTasksWithoutAntiTasks.map((task) => {
         if (task instanceof RecurringTask) {
           // Format RecurringTask differently
           return {
@@ -283,7 +285,7 @@ export default class PSSModel {
             StartTime: task.startTime,
             Duration: task.duration,
             EndDate: task.endDate,
-            Frequency: task.frequency
+            Frequency: task.frequency,
           };
         } else {
           // Format other tasks (Transient tasks) differently
@@ -292,20 +294,20 @@ export default class PSSModel {
             Type: task.taskType,
             Date: task.startDate,
             StartTime: task.startTime,
-            Duration: task.duration
+            Duration: task.duration,
           };
         }
       });
-  
+
       // Convert tasks array to prettified JSON string with 2 spaces indentation
       const scheduleData = JSON.stringify(modifiedTasks, null, 2);
-  
+
       // Create a Blob from the JSON data
       const blob = new Blob([scheduleData], { type: "application/json" });
-  
+
       // Save the blob as a file
       saveAs(blob, fileName);
-  
+
       // Log success message
       console.log(`Schedule saved to file '${fileName}' successfully.`);
     } catch (error) {
@@ -313,8 +315,6 @@ export default class PSSModel {
       console.error(`Error saving schedule to file '${fileName}':`, error);
     }
   }
-  
-  
 
   getSchedule(startDate: number, type: "day" | "week" | "month" | "calendar"): Task[] {
     let newStartDate = startDate;
@@ -352,50 +352,38 @@ export default class PSSModel {
         const addedTasks: string[] = [];
         try {
           const fileData = JSON.parse(event.target.result as string);
-          for (const taskData of fileData) {
-            const { Name, Type, StartDate, StartTime, Duration, EndDate, Frequency, Date } = taskData;
-            let result: true | string | undefined;
-            switch (Type) {
-              case "Class":
-              case "Study":
-              case "Sleep":
-              case "Exercise":
-              case "Work":
-              case "Meal":
-                result = this.controller?.addTask(
-                  Name,
-                  "recurring",
-                  StartTime,
-                  StartDate,
-                  Duration,
-                  Type,
-                  EndDate,
-                  Frequency ? numberToFrequency(Frequency) : undefined
-                );
-                if (result !== true) {
-                  throw new Error(result);
-                }
-                addedTasks.push(Name);
-                break;
-              case "Cancellation":
-                result = this.controller?.addTask(Name, "anti", StartTime, Date, Duration, Type);
-                if (result !== true) {
-                  throw new Error(result);
-                }
-                addedTasks.push(Name);
-                break;
-              case "Visit":
-              case "Shopping":
-              case "Appointment":
-                result = this.controller?.addTask(Name, "transient", StartTime, Date, Duration, Type);
-                if (result !== true) {
-                  throw new Error(result);
-                }
-                addedTasks.push(Name);
-                break;
-              default:
-                console.log(`Could not create task ${Name}`);
-                break;
+          const data = decodeJSON(fileData);
+          for (const taskData of data) {
+            if (TransientObject.is(taskData)) {
+              const { Name, Type, StartTime, Date, Duration } = taskData;
+              const result = this.controller?.addTask(Name, "transient", StartTime, Date, Duration, Type);
+              if (result !== true) {
+                throw new Error(result);
+              }
+              addedTasks.push(Name);
+            } else if (AntiObject.is(taskData)) {
+              const { Name, Type, StartTime, Date, Duration } = taskData;
+              const result = this.controller?.addTask(Name, "anti", StartTime, Date, Duration, Type);
+              if (result !== true) {
+                throw new Error(result);
+              }
+              addedTasks.push(Name);
+            } else {
+              const { Name, Type, StartTime, StartDate, EndDate, Frequency, Duration } = taskData;
+              const result = this.controller?.addTask(
+                Name,
+                "recurring",
+                StartTime,
+                StartDate,
+                Duration,
+                Type,
+                EndDate,
+                Frequency ? numberToFrequency(Frequency) : undefined
+              );
+              if (result !== true) {
+                throw new Error(result);
+              }
+              addedTasks.push(Name);
             }
           }
 

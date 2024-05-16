@@ -37,7 +37,7 @@ export class RecurringTask extends Task<RecurringTaskType> {
 
   override appendTo(taskArr: Task<string>[]): void {
     const recurringTasks: RecurringTask[] = [];
-    
+
     switch (this.frequency) {
       case Frequency.Daily:
         this.generateRecurringTasks(recurringTasks, 1);
@@ -96,6 +96,7 @@ export class RecurringTask extends Task<RecurringTaskType> {
           ) {
             continue;
           }
+          console.log("Conflicting Task Found:", task, "conflicts when trying to add", recurringTask);
           return false;
         }
       }
