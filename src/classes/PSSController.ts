@@ -50,7 +50,7 @@ export default class PSSController {
   printTasks(): void {
     this.pss.printTasks();
   }
-  
+
   // Method to delete a task from the schedule by name
   deleteTask(name: string): string | void {
     return this.pss.deleteTask(name);

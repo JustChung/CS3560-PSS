@@ -35,9 +35,9 @@
   },
   {
     "Name": "Work Project",
-    "Type": "Appointment",
-    "Date": 20200416,
-    "StartTime": 10,
+    "Type": "Work",
+    "StartDate": 20200416,
+    "StartTime": 11,
     "Duration": 2
   },
   {

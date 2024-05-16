@@ -41,7 +41,7 @@ export class RecurringTask extends Task<RecurringTaskType> {
   // Method to append recurring tasks to provided task array
   override appendTo(taskArr: Task<string>[]): void {
     const recurringTasks: RecurringTask[] = [];
-    
+
     // Generate recurring tasks based on frequency
     switch (this.frequency) {
       case Frequency.Daily:
@@ -104,6 +104,7 @@ export class RecurringTask extends Task<RecurringTaskType> {
           ) {
             continue; // Ignore recurring tasks cancelled by antitasks
           }
+          console.log("Conflicting Task Found:", task, "conflicts when trying to add", recurringTask);
           return false;
         }
       }
