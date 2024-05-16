@@ -17,9 +17,10 @@ import { RecurringTask } from "../classes/RecurringTask";
 import { getTime } from "../utils";
 import "rsuite/Calendar/styles/index.css";
 
+// Function to determine the color of a task chip
 const getTaskColor = (task: TransientTask | RecurringTask, tasks: Task[]): ChipOwnProps["color"] => {
   if (task instanceof TransientTask) {
-    return "secondary";
+    return "secondary"; // Return secondary color for transient tasks
   }
 
   if (
@@ -31,14 +32,16 @@ const getTaskColor = (task: TransientTask | RecurringTask, tasks: Task[]): ChipO
         aTask.duration === task.duration
     )
   ) {
-    return "error";
+    return "error"; // Return error color for canceled tasks
   }
 
   // Uncancelled recurring tasks
   return "primary";
 };
 
+// Render a task chip
 const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiTask; tasks: Task[] }) => {
+  // Check if associated AntiTask exists for recurring tasks or associated recurring task exists for AntiTasks
   if (task instanceof RecurringTask) {
     const associatedAntiTaskIndex = tasks.findIndex(
       (aTask) =>
@@ -49,7 +52,7 @@ const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiT
     );
 
     if (associatedAntiTaskIndex !== -1) {
-      return null;
+      return null; // If assicauted AntiTask exists, reutrn null
     }
   } else if (task instanceof AntiTask) {
     const associatedRecurringTaskIndex = tasks.findIndex(
@@ -61,10 +64,11 @@ const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiT
     );
 
     if (associatedRecurringTaskIndex !== -1) {
-      return null;
+      return null; // If associated recurring task exists, return null
     }
   }
 
+  // Render chip
   return (
     <Chip
       variant='outlined'
@@ -81,13 +85,16 @@ const TaskChip = ({ task, tasks }: { task: TransientTask | RecurringTask | AntiT
   );
 };
 
+// Component to render additional tasks
 const MoreTasks = ({ tasks, text }: { tasks: (TransientTask | RecurringTask)[]; text: string }) => {
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
 
+  // Callback to handle click
   const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchor(event.currentTarget);
   }, []);
 
+  // Callback to handle close
   const handleClose = useCallback(() => {
     setAnchor(null);
   }, []);
@@ -113,9 +120,12 @@ const MoreTasks = ({ tasks, text }: { tasks: (TransientTask | RecurringTask)[]; 
   );
 };
 
+// Component to render the calendar view
 export const CalendarView = ({ controller }: { controller: PSSController }) => {
+  // State for the current month
   const [currentMonth, setCurrentMonth] = useState(new Date(2020, 3));
 
+  // Fetch tasks for the current month
   const tasks = controller.viewSchedule(currentMonth.getFullYear() * 10000 + currentMonth.getMonth() * 100, "calendar");
 
   // Forces the calendar to continuously refresh
@@ -123,6 +133,7 @@ export const CalendarView = ({ controller }: { controller: PSSController }) => {
   setTimeout(forceRerender, 1000);
 
   const handleCellRender = useCallback(
+    // Filter tasks for current date and sort by start time
     (date: Date) => {
       const displayTasks = tasks
         .filter((task): task is TransientTask | RecurringTask => {
@@ -141,6 +152,7 @@ export const CalendarView = ({ controller }: { controller: PSSController }) => {
         })
         .sort((a, b) => a.startTime - b.startTime);
 
+      // For additional tasks, if more than 2
       const moreCount = displayTasks.length > 2 ? displayTasks.length - 2 : 0;
       if (displayTasks.length) {
         const taskItems = <MoreTasks tasks={displayTasks.slice(2)} text={moreCount + " more..."} />;
